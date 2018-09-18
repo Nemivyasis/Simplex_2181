@@ -29,7 +29,11 @@ class AppClass
 	GLuint m_uVAO = 0; //Vertex Array Object
 	GLuint m_uVBO = 0; //Vertex Buffer Object
 	
-	glm::vec3 m_v3Color = glm::vec3(-1.0f); //Color of shape
+	typedef glm::vec3 vector3;
+
+	vector3 m_v3Color = glm::vec3(-1.0f); //Color of shape
+	glm::mat4x4 m_m4ToWorld;
+	glm::vec3 m_v3Position;
 
 	bool m_bRunning = true; //Running Flag
 		

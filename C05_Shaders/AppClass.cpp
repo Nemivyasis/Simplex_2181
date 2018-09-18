@@ -115,6 +115,18 @@ void AppClass::ProcessKeyboard(sf::Event a_event)
 		m_v3Color = glm::vec3(0.0f, 0.0f, 1.0f);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0))
 		m_v3Color = glm::vec3(-1.0f, -1.0f, -1.0f);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+		m_m4ToWorld = glm::translate(m_m4ToWorld, vector3(.01, 0, 0));
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+		m_m4ToWorld = glm::translate(m_m4ToWorld, vector3(-.01, 0, 0));
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+		m_m4ToWorld = glm::translate(m_m4ToWorld, vector3(0, .01, 0));
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+		m_m4ToWorld = glm::translate(m_m4ToWorld, vector3(0, -.01, 0));
+	}
 }
 void AppClass::Display(void)
 {
@@ -125,6 +137,10 @@ void AppClass::Display(void)
 	GLuint SolidColor = glGetUniformLocation(m_uShaderProgramID, "SolidColor");
 	glUniform3f(SolidColor, m_v3Color.r, m_v3Color.g, m_v3Color.b);
 
+	//read the matrix
+	//m_m4ToWorld = { 1,0,0,0 , 0,1,0,0, 0,0,1,0, m_v3Position.x, m_v3Position.y, 0, 1 }; //last 4 is last column not last row
+	GLuint M4ToWorld = glGetUniformLocation(m_uShaderProgramID, "M4ToWorld");
+	glUniformMatrix4fv(M4ToWorld, 1, GL_FALSE, glm::value_ptr(m_m4ToWorld));
 	//draw content
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
