@@ -33,7 +33,7 @@ class AppClass
 
 	bool m_bRunning = true; //Running Flag
 		
-	bool m_bComplementary = true;
+	bool m_bComplementary = false;
 public:
 	/*
 	USAGE: Constructor
