@@ -318,11 +318,30 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	Mesh* pMesh = new Mesh();
-	pMesh->GenerateCone(a_fRadius, a_fHeight, a_nSubdivisions, a_v3Color);
-	m_lVertexPos = pMesh->GetVertexList();
-	m_uVertexCount = m_lVertexPos.size();
-	SafeDelete(pMesh);
+	vector3 center = vector3(0, -a_fHeight / 2, 0);
+	//make the circle bottom
+	vector3* vertices = new vector3[a_nSubdivisions];
+	vertices[0] = vector3(a_fRadius, -a_fHeight / 2, 0);
+
+	float angle = PI * 2 / a_nSubdivisions;
+
+	for (int i = 1; i < a_nSubdivisions; i++)
+	{
+		matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1 , 0 , -sinf(angle * i), 0 , cosf(angle * i));
+		vertices[i] = vertices[0] * transformation;
+	}
+
+	vector3 top = vector3(0, a_fHeight / 2, 0);
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddTri(center, vertices[i + 1], vertices[i]);
+		AddTri(top, vertices[i], vertices[i + 1]);
+	}
+
+	AddTri(center, vertices[0], vertices[a_nSubdivisions - 1]);
+	AddTri(top, vertices[a_nSubdivisions - 1], vertices[0]);
+
+	delete[] vertices;
 	// -------------------------------
 
 	// Adding information about color
