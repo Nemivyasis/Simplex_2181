@@ -365,11 +365,37 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	Mesh* pMesh = new Mesh();
-	pMesh->GenerateCylinder(a_fRadius, a_fHeight, a_nSubdivisions, a_v3Color);
-	m_lVertexPos = pMesh->GetVertexList();
-	m_uVertexCount = m_lVertexPos.size();
-	SafeDelete(pMesh);
+	vector3 center = vector3(0, -a_fHeight / 2, 0);
+	vector3 topcenter = vector3(0, a_fHeight / 2, 0);
+	//make the circle bottom
+	vector3* vertices = new vector3[a_nSubdivisions];
+	vector3* topVertices = new vector3[a_nSubdivisions];
+	vertices[0] = vector3(a_fRadius, -a_fHeight / 2, 0);
+	topVertices[0] = vector3(a_fRadius, a_fHeight / 2, 0);
+
+	float angle = PI * 2 / a_nSubdivisions;
+
+	for (int i = 1; i < a_nSubdivisions; i++)
+	{
+		matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
+		vertices[i] = vertices[0] * transformation;
+		topVertices[i] = topVertices[0] * transformation;
+	}
+
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddTri(center, vertices[i + 1], vertices[i]);
+		AddTri(topcenter, topVertices[i], topVertices[i + 1]);
+
+		AddQuad(vertices[i], vertices[i + 1], topVertices[i], topVertices[i+1]);
+	}
+
+	AddQuad(vertices[a_nSubdivisions - 1], vertices[0], topVertices[a_nSubdivisions - 1],  topVertices[0]);
+	AddTri(center, vertices[0], vertices[a_nSubdivisions - 1]);
+	AddTri(topcenter, topVertices[a_nSubdivisions - 1], topVertices[0]);
+
+	delete[] vertices;
+	delete[] topVertices;
 	// -------------------------------
 
 	// Adding information about color
@@ -399,11 +425,44 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	Mesh* pMesh = new Mesh();
-	pMesh->GenerateTube(a_fOuterRadius, a_fInnerRadius, a_fHeight, a_nSubdivisions, a_v3Color);
-	m_lVertexPos = pMesh->GetVertexList();
-	m_uVertexCount = m_lVertexPos.size();
-	SafeDelete(pMesh);
+	//make the circle bottom
+	vector3* vertices = new vector3[a_nSubdivisions];
+	vector3* topVertices = new vector3[a_nSubdivisions];
+	vector3* innerVertices = new vector3[a_nSubdivisions];
+	vector3* topInnerVertices = new vector3[a_nSubdivisions];
+	vertices[0] = vector3(a_fOuterRadius, -a_fHeight / 2, 0);
+	topVertices[0] = vector3(a_fOuterRadius, a_fHeight / 2, 0);
+	innerVertices[0] = vector3(a_fInnerRadius, -a_fHeight / 2, 0);
+	topInnerVertices[0] = vector3(a_fInnerRadius, a_fHeight / 2, 0);
+
+	float angle = PI * 2 / a_nSubdivisions;
+
+	for (int i = 1; i < a_nSubdivisions; i++)
+	{
+		matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
+		vertices[i] = vertices[0] * transformation;
+		topVertices[i] = topVertices[0] * transformation;
+		innerVertices[i] = innerVertices[0] * transformation;
+		topInnerVertices[i] = topInnerVertices[0] * transformation;
+	}
+
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddQuad(topVertices[i], topVertices[i + 1], topInnerVertices[i], topInnerVertices[i + 1]);
+		AddQuad(vertices[i + 1], vertices[i], innerVertices[i + 1], innerVertices[i]);
+		AddQuad(vertices[i], vertices[i + 1], topVertices[i], topVertices[i + 1]);
+		AddQuad(topInnerVertices[i], topInnerVertices[i + 1], innerVertices[i], innerVertices[i + 1]);
+	}
+
+	AddQuad(topVertices[a_nSubdivisions - 1], topVertices[0], topInnerVertices[a_nSubdivisions - 1], topInnerVertices[0]);
+	AddQuad(vertices[0], vertices[a_nSubdivisions - 1], innerVertices[0], innerVertices[a_nSubdivisions - 1]);
+	AddQuad(vertices[a_nSubdivisions - 1], vertices[0], topVertices[a_nSubdivisions - 1], topVertices[0]);
+	AddQuad(topInnerVertices[a_nSubdivisions - 1], topInnerVertices[0], innerVertices[a_nSubdivisions - 1], innerVertices[0]);
+
+	delete[] vertices;
+	delete[] topVertices;
+	delete[] innerVertices;
+	delete[] topInnerVertices;
 	// -------------------------------
 
 	// Adding information about color
@@ -457,18 +516,67 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 		GenerateCube(a_fRadius * 2.0f, a_v3Color);
 		return;
 	}
-	if (a_nSubdivisions > 6)
-		a_nSubdivisions = 6;
+	if (a_nSubdivisions > 36)
+		a_nSubdivisions = 36;
 
 	Release();
 	Init();
 
 	// Replace this with your code
-	Mesh* pMesh = new Mesh();
-	pMesh->GenerateSphere(a_fRadius, a_nSubdivisions, a_v3Color);
-	m_lVertexPos = pMesh->GetVertexList();
-	m_uVertexCount = m_lVertexPos.size();
-	SafeDelete(pMesh);
+	vector3 top(0, a_fRadius, 0);
+	vector3 bottom(0, -a_fRadius, 0);
+	vector3** vertices = new vector3*[a_nSubdivisions - 2];
+	for (int i = 0; i < a_nSubdivisions - 2; i++)
+	{
+		vertices[i] = new vector3[a_nSubdivisions];
+	}
+
+	vector3 midstartpoint(a_fRadius, 0 , 0);
+
+	float angle = PI * 2 / (a_nSubdivisions);
+	//make circle
+	for (int i = 0; i < a_nSubdivisions - 2; i++)
+	{
+	
+		float number = i + 1 - ( a_nSubdivisions - 1) / 2.0f;
+
+		matrix3 transformation = matrix3(cosf(angle / 2 * number), -sinf(angle / 2 * number), 0, sinf(angle / 2 * number), cosf(angle / 2 * number), 0, 0, 0, 1);
+		vertices[i][0] = midstartpoint * transformation;
+	}
+	
+	for (int i = 0; i < a_nSubdivisions - 2; i++)
+	{
+		for (int j = 0; j < a_nSubdivisions; j++)
+		{
+			matrix3 transformation = matrix3(cosf(angle * j), 0, sinf(angle * j), 0, 1, 0, -sinf(angle * j), 0, cosf(angle * j));
+			vertices[i][j] = vertices[i][0] * transformation;
+		}
+	}
+
+	//combine the base
+	for (int i = 0; i < a_nSubdivisions - 3; i++)
+	{
+		for (int j = 0; j < a_nSubdivisions - 1; j++)
+		{
+			AddQuad(vertices[i][j], vertices[i][j + 1], vertices[i + 1][j], vertices[i + 1][j + 1]);
+		}
+		AddQuad(vertices[i][a_nSubdivisions - 1], vertices[i][0], vertices[i + 1][a_nSubdivisions - 1], vertices[i + 1][0]);
+	}
+
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddTri(vertices[0][i], bottom, vertices[0][i + 1]);
+		AddTri(vertices[a_nSubdivisions - 3][i], vertices[a_nSubdivisions - 3][i + 1], top);
+	}
+
+	AddTri(vertices[0][a_nSubdivisions - 1], bottom, vertices[0][0]);
+	AddTri(vertices[a_nSubdivisions - 3][a_nSubdivisions - 1], vertices[a_nSubdivisions - 3][0], top);
+	
+	for (int i = 0; i < a_nSubdivisions - 2; i++)
+	{
+		delete[] vertices[i];
+	}
+	delete[] vertices;
 	// -------------------------------
 
 	// Adding information about color
