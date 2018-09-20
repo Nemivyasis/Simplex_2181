@@ -279,14 +279,16 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	vector3 center = vector3(0, -a_fHeight / 2, 0);
 	//make the circle bottom
 	vector3* vertices = new vector3[a_nSubdivisions];
-	vertices[0] = vector3(a_fRadius, -a_fHeight / 2, 0);
+
+	//vertices[0] = vector3(a_fRadius, -a_fHeight / 2, 0);
 
 	float angle = PI * 2 / a_nSubdivisions;
 
-	for (int i = 1; i < a_nSubdivisions; i++)
+	for (int i = 0; i < a_nSubdivisions; i++)
 	{
-		matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
-		vertices[i] = vertices[0] * transformation;
+		//matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
+		//vertices[i] = vertices[0] * transformation;
+		vertices[i] = vector3(a_fRadius * cosf(angle * i), -a_fHeight / 2, -a_fRadius * sinf(angle * i));
 	}
 
 	vector3 top = vector3(0, a_fHeight / 2, 0);
@@ -328,16 +330,19 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	//make the circle bottom
 	vector3* vertices = new vector3[a_nSubdivisions];
 	vector3* topVertices = new vector3[a_nSubdivisions];
-	vertices[0] = vector3(a_fRadius, -a_fHeight / 2, 0);
-	topVertices[0] = vector3(a_fRadius, a_fHeight / 2, 0);
+
+	//vertices[0] = vector3(a_fRadius, -a_fHeight / 2, 0);
+	//topVertices[0] = vector3(a_fRadius, a_fHeight / 2, 0);
 
 	float angle = PI * 2 / a_nSubdivisions;
 
-	for (int i = 1; i < a_nSubdivisions; i++)
+	for (int i = 0; i < a_nSubdivisions; i++)
 	{
-		matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
-		vertices[i] = vertices[0] * transformation;
-		topVertices[i] = topVertices[0] * transformation;
+		//matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
+		//vertices[i] = vertices[0] * transformation;
+		//topVertices[i] = topVertices[0] * transformation;
+		vertices[i] = vector3(a_fRadius * cosf(angle * i), -a_fHeight / 2, -a_fRadius * sinf(angle * i));
+		topVertices[i] = vector3(a_fRadius * cosf(angle * i), a_fHeight / 2, -a_fRadius * sinf(angle * i));
 	}
 
 	for (int i = 0; i < a_nSubdivisions - 1; i++)
@@ -388,20 +393,26 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	vector3* topVertices = new vector3[a_nSubdivisions];
 	vector3* innerVertices = new vector3[a_nSubdivisions];
 	vector3* topInnerVertices = new vector3[a_nSubdivisions];
-	vertices[0] = vector3(a_fOuterRadius, -a_fHeight / 2, 0);
-	topVertices[0] = vector3(a_fOuterRadius, a_fHeight / 2, 0);
-	innerVertices[0] = vector3(a_fInnerRadius, -a_fHeight / 2, 0);
-	topInnerVertices[0] = vector3(a_fInnerRadius, a_fHeight / 2, 0);
+
+	//vertices[0] = vector3(a_fOuterRadius, -a_fHeight / 2, 0);
+	//topVertices[0] = vector3(a_fOuterRadius, a_fHeight / 2, 0);
+	//innerVertices[0] = vector3(a_fInnerRadius, -a_fHeight / 2, 0);
+	//topInnerVertices[0] = vector3(a_fInnerRadius, a_fHeight / 2, 0);
 
 	float angle = PI * 2 / a_nSubdivisions;
 
-	for (int i = 1; i < a_nSubdivisions; i++)
+	for (int i = 0; i < a_nSubdivisions; i++)
 	{
-		matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
-		vertices[i] = vertices[0] * transformation;
-		topVertices[i] = topVertices[0] * transformation;
-		innerVertices[i] = innerVertices[0] * transformation;
-		topInnerVertices[i] = topInnerVertices[0] * transformation;
+		//matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
+		//vertices[i] = vertices[0] * transformation;
+		//topVertices[i] = topVertices[0] * transformation;
+		//innerVertices[i] = innerVertices[0] * transformation;
+		//topInnerVertices[i] = topInnerVertices[0] * transformation;
+
+		vertices[i] = vector3(a_fOuterRadius * cosf(angle * i), -a_fHeight / 2, -a_fOuterRadius * sinf(angle * i));
+		topVertices[i] = vector3(a_fOuterRadius * cosf(angle * i), a_fHeight / 2, -a_fOuterRadius * sinf(angle * i));
+		innerVertices[i] = vector3(a_fInnerRadius * cosf(angle * i), -a_fHeight / 2, -a_fInnerRadius * sinf(angle * i));
+		topInnerVertices[i] = vector3(a_fInnerRadius * cosf(angle * i), a_fHeight / 2, -a_fInnerRadius * sinf(angle * i));
 	}
 
 	for (int i = 0; i < a_nSubdivisions - 1; i++)

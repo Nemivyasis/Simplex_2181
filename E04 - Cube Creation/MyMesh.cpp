@@ -18,14 +18,12 @@ void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	*/
 	vector3 center = vector3(0, 0, 0);
 	vector3* vertices = new vector3[a_nSubdivisions];
-	vertices[0] = vector3(0, a_fRadius, 0);
-
+	
 	float angle = PI * 2 / a_nSubdivisions;
 	
-	for (int i = 1; i < a_nSubdivisions; i++)
+	for (int i = 0; i < a_nSubdivisions; i++)
 	{
-		matrix3 transformation = matrix3(cosf(angle * i), -sinf(angle * i), 0, sinf(angle * i), cosf(angle * i), 0, 0, 0, 1);
-		vertices[i] = vertices[0] *  transformation;
+		vertices[i] = vector3(a_fRadius * cosf(angle * i), a_fRadius * sinf(angle * i), 0);
 	}
 
 	for (int i = 0; i < a_nSubdivisions - 1; i++)
