@@ -282,7 +282,7 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 
 	//vertices[0] = vector3(a_fRadius, -a_fHeight / 2, 0);
 
-	float angle = PI * 2 / a_nSubdivisions;
+	float angle = (float) PI * 2 / a_nSubdivisions;
 
 	for (int i = 0; i < a_nSubdivisions; i++)
 	{
@@ -334,7 +334,7 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	//vertices[0] = vector3(a_fRadius, -a_fHeight / 2, 0);
 	//topVertices[0] = vector3(a_fRadius, a_fHeight / 2, 0);
 
-	float angle = PI * 2 / a_nSubdivisions;
+	float angle = (float) PI * 2 / a_nSubdivisions;
 
 	for (int i = 0; i < a_nSubdivisions; i++)
 	{
@@ -399,7 +399,7 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	//innerVertices[0] = vector3(a_fInnerRadius, -a_fHeight / 2, 0);
 	//topInnerVertices[0] = vector3(a_fInnerRadius, a_fHeight / 2, 0);
 
-	float angle = PI * 2 / a_nSubdivisions;
+	float angle = (float) PI * 2 / a_nSubdivisions;
 
 	for (int i = 0; i < a_nSubdivisions; i++)
 	{
@@ -463,7 +463,46 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	vector3** vertices = new vector3*[a_nSubdivisionsA];
+	for (int i = 0; i < a_nSubdivisionsA; i++)
+	{
+		vertices[i] = new vector3[a_nSubdivisionsB];
+	}
+
+	//make the small sphere
+	float tubeRadius = (a_fOuterRadius - a_fInnerRadius) / 2;
+	//rotation time
+	float angle = (float)PI * 2 / a_nSubdivisionsA;
+	for (int i = 0; i < a_nSubdivisionsA; i++)
+	{
+		//matrix3 transformation = matrix3(cosf(angle * i), -sinf(angle * i), 0, sinf(angle * i), cosf(angle * i), 0, 0, 0, 1);
+		//vertices[i][0] = vertices[0][0] * transformation;
+		//vertices[i][0].x += -(a_fOuterRadius - a_fInnerRadius) / 2 + a_fOuterRadius;
+		vertices[i][0] = vector3(tubeRadius * cosf(angle * i) - tubeRadius + a_fOuterRadius, tubeRadius * sinf(angle * i), 0);
+	}
+	//vertices[0][0].x += -(a_fOuterRadius - a_fInnerRadius) / 2 + a_fOuterRadius;
+
+	angle = (float)PI * 2 / a_nSubdivisionsB;
+	//make the big circle
+	for (int i = 0; i < a_nSubdivisionsA; i++)
+	{
+		float circRadius = sqrt(vertices[i][0].x * vertices[i][0].x + vertices[i][0].z * vertices[i][0].z);
+		for (int j = 1; j < a_nSubdivisionsB; j++)
+		{
+			//matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
+			//vertices[i][j] = vertices[i][0] * transformation;
+			vertices[i][j] = vector3(circRadius * cosf(angle * j), vertices[i][0].y, circRadius * sinf(angle * j));
+		}
+	}
+
+	//make the quads
+	for (int i = 0; i < a_nSubdivisionsA; i++)
+	{
+		for (int j = 0; j < a_nSubdivisionsB; j++)
+		{
+			AddQuad(vertices[i][j], vertices[(i + 1) % a_nSubdivisionsA][j], vertices[i][(j + 1) % a_nSubdivisionsB],  vertices[(i + 1) % a_nSubdivisionsA][(j + 1) % a_nSubdivisionsB]);
+		}
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -498,7 +537,7 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 
 	vector3 midstartpoint(a_fRadius, 0, 0);
 
-	float angle = PI * 2 / (a_nSubdivisions);
+	float angle = (float) PI * 2 / (a_nSubdivisions);
 	//make circle
 	for (int i = 0; i < a_nSubdivisions - 2; i++)
 	{
