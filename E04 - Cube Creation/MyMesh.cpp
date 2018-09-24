@@ -19,13 +19,16 @@ void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	vector3 center = vector3(0, 0, 0);
 	vector3* vertices = new vector3[a_nSubdivisions];
 	
+	//calculate the angle between each vertex by dividing 2pi by subdivisions
 	float angle = PI * 2 / a_nSubdivisions;
 	
+	//calculate the vertices
 	for (int i = 0; i < a_nSubdivisions; i++)
 	{
 		vertices[i] = vector3(a_fRadius * cosf(angle * i), a_fRadius * sinf(angle * i), 0);
 	}
 
+	//draw the tris
 	for (int i = 0; i < a_nSubdivisions - 1; i++)
 	{
 		AddTri(center, vertices[i], vertices[i + 1]);
@@ -33,7 +36,12 @@ void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 
 	AddTri(center, vertices[a_nSubdivisions - 1], vertices[0]);
 
-	delete[] vertices;
+	//clean memory
+	if (vertices != nullptr) {
+		delete[] vertices;
+		vertices = nullptr;
+	}
+
 	// Adding information about color
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
