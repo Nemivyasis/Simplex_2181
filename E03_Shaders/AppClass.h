@@ -8,6 +8,10 @@ Date : 2018 / 01
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <fstream>
+#include <string>
+#include <ctime>
+
 #include "ShaderCompiler.h"
 
 #include <SFML/Window.hpp>
