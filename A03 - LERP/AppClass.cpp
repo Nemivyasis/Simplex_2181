@@ -40,6 +40,7 @@ void Application::InitVariables(void)
 	{
 		vector3 v3Color = WaveLengthToRGB(uColor); //calculate color based on wavelength
 		
+		//the number of points for the given circle
 		points[i - uSides] = new vector3[i];
 
 		//calculate the angle between each vertex by dividing 2pi by subdivisions
@@ -48,7 +49,7 @@ void Application::InitVariables(void)
 		//calculate the vertices
 		for (int j = 0; j < i; j++)
 		{
-			points[i - uSides][j] = vector3(fSize * cosf(angle * j), fSize * sinf(angle * j), 0);
+			points[i - uSides][j] = vector3((fSize - .05) * cosf(angle * j), (fSize - .05) * sinf(angle * j), 0);
 		}
 
 		m_shapeList.push_back(m_pMeshMngr->GenerateTorus(fSize, fSize - 0.1f, 3, i, v3Color)); //generate a custom torus and add it to the meshmanager
