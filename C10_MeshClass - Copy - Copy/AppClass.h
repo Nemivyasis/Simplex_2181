@@ -21,6 +21,10 @@ class Application
 private:
 	static ImGuiObject gui; //GUI object
 
+	int boxCount;
+	std::vector<MyMesh*> meshObj;
+	std::vector<vector3*> buildTranslation;
+
 	uint m_uRenderCallCount = 0; //count of render calls per frame
 	uint m_uControllerCount = 0; //count of controllers connected
 
