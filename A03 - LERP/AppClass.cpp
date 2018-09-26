@@ -48,7 +48,7 @@ void Application::InitVariables(void)
 		//calculate the vertices
 		for (int j = 0; j < i; j++)
 		{
-			points[i - uSides][j] = vector3(fSize * cosf(angle * i), fSize * sinf(angle * i), 0);
+			points[i - uSides][j] = vector3(fSize * cosf(angle * j), fSize * sinf(angle * j), 0);
 		}
 
 		m_shapeList.push_back(m_pMeshMngr->GenerateTorus(fSize, fSize - 0.1f, 3, i, v3Color)); //generate a custom torus and add it to the meshmanager
@@ -81,18 +81,18 @@ void Application::Display(void)
 	//m4Offset = glm::rotate(IDENTITY_M4, 1.5708f, AXIS_Z);
 	static float timer = 0;
 	static uint clock = m_pSystem->GenClock();
-	timer += m_pSystem->GetDeltaTime(clock); //get the delta time for that timer
+	timer += m_pSystem->GetDeltaTime(clock) * m_fSpeed; //get the delta time for that timer
 
 	// draw a shapes
 	for (uint i = 0; i < m_uOrbits; ++i)
 	{
 		m_pMeshMngr->AddMeshToRenderList(m_shapeList[i], glm::rotate(m4Offset, 1.5708f, AXIS_X));
 		//calculate the current position
+		float lerpTime = timer - floorf(timer);
+		int prevPointIndex = (int)floorf(timer) % (i + 3);
+		int nextPointIndex = ((int)floorf(timer) + 1) % (i + 3);
+		vector3 v3CurrentPos = glm::lerp(points[i][prevPointIndex] , points[i][nextPointIndex], lerpTime);
 
-		vector3 v3CurrentPos = glm::lerp(points[i][(int)floorf(timer) % (i + 3)] , points[i][((int)floorf(timer) + 1) % (i + 3)], timer - floorf(timer));
-		if (i == 0) {
-			std::cout << (int)floorf(timer) % (i + 3) << " " << ((int)floorf(timer) + 1) % (i + 3) << " " << timer - floorf(timer) << " - " << v3CurrentPos.x << " " << v3CurrentPos.y  << " " << v3CurrentPos.z << std::endl;
-		}
 		matrix4 m4Model = glm::translate(m4Offset, v3CurrentPos);
 
 		//draw spheres

@@ -26,6 +26,7 @@ private:
 	static ImGuiObject gui; //GUI object
 	
 	vector3** points;
+	float m_fSpeed = 2;
 
 	uint m_uRenderCallCount = 0; //count of render calls per frame
 	uint m_uControllerCount = 0; //count of controllers connected

@@ -280,17 +280,16 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	//make the circle bottom
 	vector3* vertices = new vector3[a_nSubdivisions];
 
-	//vertices[0] = vector3(a_fRadius, -a_fHeight / 2, 0);
-
+	//angle between each point in the circle
 	float angle = (float) PI * 2 / a_nSubdivisions;
 
+	//finds subdivision number of points on bottom circle
 	for (int i = 0; i < a_nSubdivisions; i++)
 	{
-		//matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
-		//vertices[i] = vertices[0] * transformation;
 		vertices[i] = vector3(a_fRadius * cosf(angle * i), -a_fHeight / 2, -a_fRadius * sinf(angle * i));
 	}
 
+	//add the tris for the bottom circle and pyramid
 	vector3 top = vector3(0, a_fHeight / 2, 0);
 	for (int i = 0; i < a_nSubdivisions - 1; i++)
 	{
@@ -298,10 +297,17 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 		AddTri(top, vertices[i], vertices[i + 1]);
 	}
 
+	//final 2 tris (from the end of the array to front)
 	AddTri(center, vertices[0], vertices[a_nSubdivisions - 1]);
 	AddTri(top, vertices[a_nSubdivisions - 1], vertices[0]);
 
-	delete[] vertices;
+	//clean memory
+	if (vertices != nullptr) 
+	{
+		delete[] vertices;
+		vertices = nullptr;
+	}
+
 	// -------------------------------
 
 	// Adding information about color
@@ -325,40 +331,56 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	vector3 center = vector3(0, -a_fHeight / 2, 0);
-	vector3 topcenter = vector3(0, a_fHeight / 2, 0);
-	//make the circle bottom
-	vector3* vertices = new vector3[a_nSubdivisions];
+	//center of top center and bottom center
+	vector3 botCenter = vector3(0, -a_fHeight / 2, 0);
+	vector3 topCenter = vector3(0, a_fHeight / 2, 0);
+
+	//arrays for points of circles
+	vector3* botVertices = new vector3[a_nSubdivisions];
 	vector3* topVertices = new vector3[a_nSubdivisions];
 
-	//vertices[0] = vector3(a_fRadius, -a_fHeight / 2, 0);
-	//topVertices[0] = vector3(a_fRadius, a_fHeight / 2, 0);
-
+	//angle between each point in the circle
 	float angle = (float) PI * 2 / a_nSubdivisions;
 
+	//simultaneously gets points for top and bottom circle
 	for (int i = 0; i < a_nSubdivisions; i++)
 	{
-		//matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
-		//vertices[i] = vertices[0] * transformation;
-		//topVertices[i] = topVertices[0] * transformation;
-		vertices[i] = vector3(a_fRadius * cosf(angle * i), -a_fHeight / 2, -a_fRadius * sinf(angle * i));
+		//bottom circle
+		botVertices[i] = vector3(a_fRadius * cosf(angle * i), -a_fHeight / 2, -a_fRadius * sinf(angle * i));
+
+		//top circle
 		topVertices[i] = vector3(a_fRadius * cosf(angle * i), a_fHeight / 2, -a_fRadius * sinf(angle * i));
 	}
 
+	//draw tris for top and bottom circles as well as the sides
 	for (int i = 0; i < a_nSubdivisions - 1; i++)
 	{
-		AddTri(center, vertices[i + 1], vertices[i]);
-		AddTri(topcenter, topVertices[i], topVertices[i + 1]);
+		//bottom circle
+		AddTri(botCenter, botVertices[i + 1], botVertices[i]);
 
-		AddQuad(vertices[i], vertices[i + 1], topVertices[i], topVertices[i + 1]);
+		//top circle
+		AddTri(topCenter, topVertices[i], topVertices[i + 1]);
+
+		//sides
+		AddQuad(botVertices[i], botVertices[i + 1], topVertices[i], topVertices[i + 1]);
 	}
 
-	AddQuad(vertices[a_nSubdivisions - 1], vertices[0], topVertices[a_nSubdivisions - 1], topVertices[0]);
-	AddTri(center, vertices[0], vertices[a_nSubdivisions - 1]);
-	AddTri(topcenter, topVertices[a_nSubdivisions - 1], topVertices[0]);
+	//final tris and quads (from end of array to beginning)
+	AddQuad(botVertices[a_nSubdivisions - 1], botVertices[0], topVertices[a_nSubdivisions - 1], topVertices[0]);
+	AddTri(botCenter, botVertices[0], botVertices[a_nSubdivisions - 1]);
+	AddTri(topCenter, topVertices[a_nSubdivisions - 1], topVertices[0]);
 
-	delete[] vertices;
-	delete[] topVertices;
+	//clean memory
+	if (botVertices != nullptr) 
+	{
+		delete[] botVertices;
+		botVertices = nullptr;
+	}
+	if (topVertices != nullptr) 
+	{
+		delete[] topVertices;
+		topVertices = nullptr;
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -388,50 +410,67 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-		//make the circle bottom
-	vector3* vertices = new vector3[a_nSubdivisions];
+	//array of circle vertices
+	vector3* botVertices = new vector3[a_nSubdivisions];
 	vector3* topVertices = new vector3[a_nSubdivisions];
-	vector3* innerVertices = new vector3[a_nSubdivisions];
+	vector3* botInnerVertices = new vector3[a_nSubdivisions];
 	vector3* topInnerVertices = new vector3[a_nSubdivisions];
 
-	//vertices[0] = vector3(a_fOuterRadius, -a_fHeight / 2, 0);
-	//topVertices[0] = vector3(a_fOuterRadius, a_fHeight / 2, 0);
-	//innerVertices[0] = vector3(a_fInnerRadius, -a_fHeight / 2, 0);
-	//topInnerVertices[0] = vector3(a_fInnerRadius, a_fHeight / 2, 0);
-
+	//angle between each point in the circle
 	float angle = (float) PI * 2 / a_nSubdivisions;
 
+	//simultaneously calculate each circle's points
 	for (int i = 0; i < a_nSubdivisions; i++)
 	{
-		//matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
-		//vertices[i] = vertices[0] * transformation;
-		//topVertices[i] = topVertices[0] * transformation;
-		//innerVertices[i] = innerVertices[0] * transformation;
-		//topInnerVertices[i] = topInnerVertices[0] * transformation;
-
-		vertices[i] = vector3(a_fOuterRadius * cosf(angle * i), -a_fHeight / 2, -a_fOuterRadius * sinf(angle * i));
+		botVertices[i] = vector3(a_fOuterRadius * cosf(angle * i), -a_fHeight / 2, -a_fOuterRadius * sinf(angle * i));
 		topVertices[i] = vector3(a_fOuterRadius * cosf(angle * i), a_fHeight / 2, -a_fOuterRadius * sinf(angle * i));
-		innerVertices[i] = vector3(a_fInnerRadius * cosf(angle * i), -a_fHeight / 2, -a_fInnerRadius * sinf(angle * i));
+		botInnerVertices[i] = vector3(a_fInnerRadius * cosf(angle * i), -a_fHeight / 2, -a_fInnerRadius * sinf(angle * i));
 		topInnerVertices[i] = vector3(a_fInnerRadius * cosf(angle * i), a_fHeight / 2, -a_fInnerRadius * sinf(angle * i));
 	}
 
+	//add 4 quads for each subdivision
 	for (int i = 0; i < a_nSubdivisions - 1; i++)
 	{
+		//top donut
 		AddQuad(topVertices[i], topVertices[i + 1], topInnerVertices[i], topInnerVertices[i + 1]);
-		AddQuad(vertices[i + 1], vertices[i], innerVertices[i + 1], innerVertices[i]);
-		AddQuad(vertices[i], vertices[i + 1], topVertices[i], topVertices[i + 1]);
-		AddQuad(topInnerVertices[i], topInnerVertices[i + 1], innerVertices[i], innerVertices[i + 1]);
+
+		//bottom donut
+		AddQuad(botVertices[i + 1], botVertices[i], botInnerVertices[i + 1], botInnerVertices[i]);
+
+		//outside side
+		AddQuad(botVertices[i], botVertices[i + 1], topVertices[i], topVertices[i + 1]);
+
+		//inside side
+		AddQuad(topInnerVertices[i], topInnerVertices[i + 1], botInnerVertices[i], botInnerVertices[i + 1]);
 	}
 
+	//final quads (from end of array to beginning)
 	AddQuad(topVertices[a_nSubdivisions - 1], topVertices[0], topInnerVertices[a_nSubdivisions - 1], topInnerVertices[0]);
-	AddQuad(vertices[0], vertices[a_nSubdivisions - 1], innerVertices[0], innerVertices[a_nSubdivisions - 1]);
-	AddQuad(vertices[a_nSubdivisions - 1], vertices[0], topVertices[a_nSubdivisions - 1], topVertices[0]);
-	AddQuad(topInnerVertices[a_nSubdivisions - 1], topInnerVertices[0], innerVertices[a_nSubdivisions - 1], innerVertices[0]);
+	AddQuad(botVertices[0], botVertices[a_nSubdivisions - 1], botInnerVertices[0], botInnerVertices[a_nSubdivisions - 1]);
+	AddQuad(botVertices[a_nSubdivisions - 1], botVertices[0], topVertices[a_nSubdivisions - 1], topVertices[0]);
+	AddQuad(topInnerVertices[a_nSubdivisions - 1], topInnerVertices[0], botInnerVertices[a_nSubdivisions - 1], botInnerVertices[0]);
 
-	delete[] vertices;
-	delete[] topVertices;
-	delete[] innerVertices;
-	delete[] topInnerVertices;
+	//clean memory
+	if (botVertices != nullptr) 
+	{
+		delete[] botVertices;
+		botVertices = nullptr;
+	}
+	if (topVertices != nullptr) 
+	{
+		delete[] topVertices;
+		topVertices = nullptr;
+	}
+	if (botInnerVertices != nullptr) 
+	{
+		delete[] botInnerVertices;
+		botInnerVertices = nullptr;
+	}
+	if (topInnerVertices != nullptr) 
+	{
+		delete[] topInnerVertices;
+		topInnerVertices = nullptr;
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -469,28 +508,32 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 		vertices[i] = new vector3[a_nSubdivisionsB];
 	}
 
-	//make the small sphere
+
+	//make the small circle
+	//radius of circles along tube
 	float tubeRadius = (a_fOuterRadius - a_fInnerRadius) / 2;
-	//rotation time
+
+	//angle between points on small circle
 	float angle = (float)PI * 2 / a_nSubdivisionsA;
+
+	//get points on small circle and translate them out so the circle is along the tube
 	for (int i = 0; i < a_nSubdivisionsA; i++)
 	{
-		//matrix3 transformation = matrix3(cosf(angle * i), -sinf(angle * i), 0, sinf(angle * i), cosf(angle * i), 0, 0, 0, 1);
-		//vertices[i][0] = vertices[0][0] * transformation;
-		//vertices[i][0].x += -(a_fOuterRadius - a_fInnerRadius) / 2 + a_fOuterRadius;
 		vertices[i][0] = vector3(tubeRadius * cosf(angle * i) - tubeRadius + a_fOuterRadius, tubeRadius * sinf(angle * i), 0);
 	}
-	//vertices[0][0].x += -(a_fOuterRadius - a_fInnerRadius) / 2 + a_fOuterRadius;
 
+	//angle between circles on tube
 	angle = (float)PI * 2 / a_nSubdivisionsB;
-	//make the big circle
+
+	//for each point along the first circle I made, calculate a large circle flat along the xz plane to form the big tube
 	for (int i = 0; i < a_nSubdivisionsA; i++)
 	{
+		//radius of the big circle
 		float circRadius = sqrt(vertices[i][0].x * vertices[i][0].x + vertices[i][0].z * vertices[i][0].z);
+
+		//find each point
 		for (int j = 1; j < a_nSubdivisionsB; j++)
 		{
-			//matrix3 transformation = matrix3(cosf(angle * i), 0, sinf(angle * i), 0, 1, 0, -sinf(angle * i), 0, cosf(angle * i));
-			//vertices[i][j] = vertices[i][0] * transformation;
 			vertices[i][j] = vector3(circRadius * cosf(angle * j), vertices[i][0].y, circRadius * sinf(angle * j));
 		}
 	}
@@ -500,8 +543,24 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	{
 		for (int j = 0; j < a_nSubdivisionsB; j++)
 		{
+			//quads attaching a point to the one next to it along the small circle, next along the big circle, and diagonal to it
+			//the modulus makes it so that i + 1 wraps to 0 when i = subdivisions - 1
 			AddQuad(vertices[i][j], vertices[(i + 1) % a_nSubdivisionsA][j], vertices[i][(j + 1) % a_nSubdivisionsB],  vertices[(i + 1) % a_nSubdivisionsA][(j + 1) % a_nSubdivisionsB]);
 		}
+	}
+
+	//clean memory
+	for (int i = 0; i < a_nSubdivisionsA; i++)
+	{
+		if (vertices[i] != nullptr) {
+			delete[] vertices[i];
+			vertices[i] = nullptr;
+		}
+	}
+
+	if (vertices != nullptr) {
+		delete[] vertices;
+		vertices = nullptr;
 	}
 	// -------------------------------
 
@@ -527,60 +586,83 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
+	//top and bottom of sphere
 	vector3 top(0, a_fRadius, 0);
 	vector3 bottom(0, -a_fRadius, 0);
+
+	//holds the vertices of full sphere
+	//the -2 is because I am counting top and bottom as a subdivision, so there are the same number of face divisions vertical as horizontal
 	vector3** vertices = new vector3*[a_nSubdivisions - 2];
 	for (int i = 0; i < a_nSubdivisions - 2; i++)
 	{
 		vertices[i] = new vector3[a_nSubdivisions];
 	}
 
+	//I'm rotating this point up and down to find where to start each xz-flat circle
 	vector3 midstartpoint(a_fRadius, 0, 0);
 
+	//angle each point is from the others
 	float angle = (float) PI * 2 / (a_nSubdivisions);
 	//make circle
 	for (int i = 0; i < a_nSubdivisions - 2; i++)
 	{
 
-		float number = i + 1 - (a_nSubdivisions - 1) / 2.0f;
+		//makes it so that the sphere is centered and that we are finding one of the sides along the y-axis
+		float centeringNumber = i + 1 - (a_nSubdivisions - 1) / 2.0f;
 
-		matrix3 transformation = matrix3(cosf(angle / 2 * number), -sinf(angle / 2 * number), 0, sinf(angle / 2 * number), cosf(angle / 2 * number), 0, 0, 0, 1);
+		//angle / 2 makes it so that we only get points for half the circle
+		//we make a rotation matrix that finds a point given the far right side of the sphere, then we rotate that far right point to find the point we want
+		matrix3 transformation = matrix3(cosf(angle / 2 * centeringNumber), -sinf(angle / 2 * centeringNumber), 0, sinf(angle / 2 * centeringNumber), cosf(angle / 2 * centeringNumber), 0, 0, 0, 1);
 		vertices[i][0] = midstartpoint * transformation;
 	}
 
+	//take each point along the right side of the sphere and create a circle on the xz plane out of it
 	for (int i = 0; i < a_nSubdivisions - 2; i++)
 	{
 		for (int j = 0; j < a_nSubdivisions; j++)
 		{
+			//make a rotation matrix and rotate the point to find the new points
 			matrix3 transformation = matrix3(cosf(angle * j), 0, sinf(angle * j), 0, 1, 0, -sinf(angle * j), 0, cosf(angle * j));
 			vertices[i][j] = vertices[i][0] * transformation;
 		}
 	}
 
-	//combine the base
+	//add the quads
 	for (int i = 0; i < a_nSubdivisions - 3; i++)
 	{
 		for (int j = 0; j < a_nSubdivisions - 1; j++)
 		{
+			//add a quad along each xz circle
 			AddQuad(vertices[i][j], vertices[i][j + 1], vertices[i + 1][j], vertices[i + 1][j + 1]);
 		}
+		//add the final quad from the end of the array to beginning
 		AddQuad(vertices[i][a_nSubdivisions - 1], vertices[i][0], vertices[i + 1][a_nSubdivisions - 1], vertices[i + 1][0]);
 	}
 
+	//make the top and bottom using the top circle and bottom circle and drawing tris to top and bottom point
 	for (int i = 0; i < a_nSubdivisions - 1; i++)
 	{
 		AddTri(vertices[0][i], bottom, vertices[0][i + 1]);
 		AddTri(vertices[a_nSubdivisions - 3][i], vertices[a_nSubdivisions - 3][i + 1], top);
 	}
 
+	//draw the final two tris
 	AddTri(vertices[0][a_nSubdivisions - 1], bottom, vertices[0][0]);
 	AddTri(vertices[a_nSubdivisions - 3][a_nSubdivisions - 1], vertices[a_nSubdivisions - 3][0], top);
 
+	//clean memory
 	for (int i = 0; i < a_nSubdivisions - 2; i++)
 	{
-		delete[] vertices[i];
+		if (vertices[i] != nullptr) {
+			delete[] vertices[i];
+			vertices[i] = nullptr;
+		}
 	}
-	delete[] vertices;
+	
+	if (vertices != nullptr) {
+		delete[] vertices;
+		vertices = nullptr;
+	}
 	// -------------------------------
 
 	// Adding information about color
