@@ -12,8 +12,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9122262A-9544-46D5-9139-D2D6D0FC7F93}</ProjectGuid>
-    <RootNamespace>Test1</RootNamespace>
-    <ProjectName>Test1</ProjectName>
+    <RootNamespace>E05 - Translations</RootNamespace>
+    <ProjectName>E05 - Translations</ProjectName>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

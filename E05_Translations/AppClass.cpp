@@ -25,13 +25,6 @@ void Application::InitVariables(void)
 			}
 		}
 	}
-	//Make MyMesh object
-	m_pMesh = new MyMesh();
-	m_pMesh->GenerateCube(2.0f, C_BROWN);
-
-	//Make MyMesh object
-	m_pMesh1 = new MyMesh();
-	m_pMesh1->GenerateCube(1.0f, C_WHITE);
 }
 void Application::Update(void)
 {
@@ -48,14 +41,18 @@ void Application::Display(void)
 {
 	// Clear the screen
 	ClearScreen();
+	static float moveTime = 0;
+	moveTime += 0.01f;
 
 	for (int i = 0; i < boxCount; i++)
 	{
 		vector3* temp = buildTranslation[i];
-		meshObj[i]->Render(m_pCameraMngr->GetProjectionMatrix(), m_pCameraMngr->GetViewMatrix(), glm::translate(*temp));
+		matrix4 translationMatrix = glm::scale(IDENTITY_M4, vector3(2, 2, 2));
+		translationMatrix = glm::translate(translationMatrix, *buildTranslation[i]);
+		translationMatrix = glm::translate(translationMatrix, vector3(moveTime, sinf(moveTime), 0));
+
+		meshObj[i]->Render(m_pCameraMngr->GetProjectionMatrix(), m_pCameraMngr->GetViewMatrix(), translationMatrix);
 	}
-	
-	m_pMesh1->Render(m_pCameraMngr->GetProjectionMatrix(), m_pCameraMngr->GetViewMatrix(), glm::translate(vector3( 3.0f, 0.0f, 0.0f)));
 		
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
@@ -74,12 +71,11 @@ void Application::Display(void)
 }
 void Application::Release(void)
 {
-	if (m_pMesh != nullptr)
+	for (int i = boxCount - 1 ; i >= 0; i--)
 	{
-		delete m_pMesh;
-		m_pMesh = nullptr;
+		SafeDelete(meshObj[i]);
+		SafeDelete(buildTranslation[i]);
 	}
-	SafeDelete(m_pMesh1);
 	//release GUI
 	ShutdownGUI();
 }
