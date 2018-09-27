@@ -37,6 +37,9 @@ void Application::DrawGUI(void)
 			ImGui::Text("	 F2: Orthographic X\n");
 			ImGui::Text("	 F3: Orthographic Y\n");
 			ImGui::Text("	 F4: Orthographic Z\n");
+			ImGui::Text("\n");
+			ImGui::Text("	 F5: Toggle Rotation\n");
+			ImGui::Text("	 F5: Toggle Rotation Direction\n");
 		}
 		ImGui::End();
 	}

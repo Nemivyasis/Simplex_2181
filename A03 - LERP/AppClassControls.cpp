@@ -100,6 +100,12 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 	case sf::Keyboard::F4:
 		m_pCameraMngr->SetCameraMode(CAM_ORTHO_X);
 		break;
+	case sf::Keyboard::F5:
+		m_bRot = !m_bRot;
+		break;
+	case sf::Keyboard::F6:
+		m_bReverseRot = !m_bReverseRot;
+		break;
 	case sf::Keyboard::F:
 		bFPSControl = !bFPSControl;
 		m_pCameraMngr->SetFPS(bFPSControl);

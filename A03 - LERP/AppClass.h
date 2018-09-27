@@ -21,12 +21,18 @@ class Application
 	uint m_uOrbits = 0; //number of shapes starting at 3 and increasing in sides
 	std::vector<uint> m_shapeList; //shape index for circles
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
-	
+
+	bool m_bRot = false;
+	bool m_bReverseRot = false;
+
 private:
 	static ImGuiObject gui; //GUI object
 	
 	vector3** points;
 	float m_fSpeed = 1;
+
+	float m_fRotSpeed = .5f;
+
 
 	uint m_uRenderCallCount = 0; //count of render calls per frame
 	uint m_uControllerCount = 0; //count of controllers connected

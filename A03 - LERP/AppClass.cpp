@@ -82,19 +82,39 @@ void Application::Display(void)
 	//m4Offset = glm::rotate(IDENTITY_M4, 1.5708f, AXIS_Z);
 	static float timer = 0;
 	static uint clock = m_pSystem->GenClock();
-	timer += m_pSystem->GetDeltaTime(clock) * m_fSpeed; //get the delta time for that timer
+	float deltaTime = m_pSystem->GetDeltaTime(clock);
+	timer +=  deltaTime * m_fSpeed; //get the delta time for that timer
+	
+	static float rotationAngle = 0.0f;
+	
+	if (m_bRot) {
+		if (m_bReverseRot) {
+			rotationAngle -= deltaTime * m_fRotSpeed;
+		}
+		else {
+			rotationAngle += deltaTime * m_fRotSpeed;
+		}
+	}
 
 	// draw a shapes
 	for (uint i = 0; i < m_uOrbits; ++i)
 	{
-		m_pMeshMngr->AddMeshToRenderList(m_shapeList[i], glm::rotate(m4Offset, 1.5708f, AXIS_X));
+		int reverse = 1;
+		if (i % 2 == 1) {
+			reverse = -1;
+		}
+		matrix4 torusTransform = glm::rotate(m4Offset, reverse * rotationAngle, vector3(0.0f, 0.0f, 1.0f));
+		m_pMeshMngr->AddMeshToRenderList(m_shapeList[i], glm::rotate(torusTransform, 1.5708f, AXIS_X));
 		//calculate the current position
 		float lerpTime = timer - floorf(timer);
 		int prevPointIndex = (int)floorf(timer) % (i + 3);
 		int nextPointIndex = ((int)floorf(timer) + 1) % (i + 3);
 		vector3 v3CurrentPos = glm::lerp(points[i][prevPointIndex] , points[i][nextPointIndex], lerpTime);
 
-		matrix4 m4Model = glm::translate(m4Offset, v3CurrentPos);
+		matrix4 m4Model = glm::rotate(m4Offset, reverse * rotationAngle, vector3(0.0f, 0.0f, 1.0f));
+		m4Model = glm::translate(m4Model, v3CurrentPos);
+
+
 
 		//draw spheres
 		m_pMeshMngr->AddSphereToRenderList(m4Model * glm::scale(vector3(0.1)), C_WHITE);
