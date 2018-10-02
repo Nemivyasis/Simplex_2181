@@ -1,9 +1,9 @@
 #include "AppClass.h"
 void Application::InitVariables(void)
 {
-	//Make MyMesh object
-	m_pMesh = new MyMesh();
-	m_pMesh->GenerateCube(2.0f, C_BROWN);
+	////Make MyMesh object
+	//m_pMesh = new MyMesh();
+	//m_pMesh->GenerateCube(2.0f, C_BROWN);
 
 	//Make MyMesh object
 	m_pMesh1 = new MyMesh();
@@ -22,12 +22,33 @@ void Application::Update(void)
 }
 void Application::Display(void)
 {
+	vector3 v3InitialPoint = vector3(0, 0, 0);
+	vector3 v3EndPoint = vector3(5, 0, 0);
+
 	// Clear the screen
 	ClearScreen();
+	static DWORD DStartingTime = GetTickCount();
+	DWORD DCurrentTime;
+	DCurrentTime = GetTickCount();
 
-	m_pMesh->Render(m_pCameraMngr->GetProjectionMatrix(), m_pCameraMngr->GetViewMatrix(), ToMatrix4(m_qArcBall));
-	m_pMesh1->Render(m_pCameraMngr->GetProjectionMatrix(), m_pCameraMngr->GetViewMatrix(), glm::translate(vector3( 3.0f, 0.0f, 0.0f)));
+	float deltaTime = (DCurrentTime - DStartingTime) / 1000.0f;
+
+
+
+	static int pointTravelTime = 2;
+	int runThrough = floorf(deltaTime / pointTravelTime);
+	float timer = (deltaTime / pointTravelTime - floorf(deltaTime / pointTravelTime)) ;
+
+	if (runThrough % 2 == 1) {
+		timer = 1 - timer;
+	}
+	std::cout << runThrough << std::endl;
+	vector3 v3Position = glm::lerp(v3InitialPoint, v3EndPoint, timer);
+	matrix4 m4Position = glm::translate(IDENTITY_M4, v3Position);
+
+	m_pMesh1->Render(m_pCameraMngr->GetProjectionMatrix(), m_pCameraMngr->GetViewMatrix(), m4Position);
 		
+
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
 	
@@ -42,6 +63,8 @@ void Application::Display(void)
 	
 	//end the current frame (internally swaps the front and back buffers)
 	m_pWindow->display();
+
+
 }
 void Application::Release(void)
 {
