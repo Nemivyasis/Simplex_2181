@@ -85,6 +85,7 @@ void Application::Display(void)
 	float deltaTime = m_pSystem->GetDeltaTime(clock);
 	timer +=  deltaTime * m_fSpeed; //get the delta time for that timer
 	
+	static float scaleAmount = 1.0f;
 	static float rotationAngle = 0.0f;
 	
 	if (m_bRot) {
@@ -96,6 +97,23 @@ void Application::Display(void)
 		}
 	}
 
+
+	if (m_bScale) {
+		if (m_bGrow) {
+			scaleAmount += deltaTime * m_fScaleSpeed;
+
+			if (scaleAmount >= m_fMaxScale) {
+				m_bGrow = false;
+			}
+		}
+		else {
+			scaleAmount -= deltaTime * m_fScaleSpeed;
+
+			if (scaleAmount <= m_fMinScale) {
+				m_bGrow = true;
+			}
+		}
+	}
 	// draw a shapes
 	for (uint i = 0; i < m_uOrbits; ++i)
 	{
@@ -103,7 +121,8 @@ void Application::Display(void)
 		if (i % 2 == 1) {
 			reverse = -1;
 		}
-		matrix4 torusTransform = glm::rotate(m4Offset, reverse * rotationAngle, vector3(0.0f, 0.0f, 1.0f));
+		matrix4 torusTransform = glm::scale(m4Offset, vector3(scaleAmount));
+		torusTransform = glm::rotate(torusTransform, reverse * rotationAngle, vector3(0.0f, 0.0f, 1.0f));
 		m_pMeshMngr->AddMeshToRenderList(m_shapeList[i], glm::rotate(torusTransform, 1.5708f, AXIS_X));
 		//calculate the current position
 		float lerpTime = timer - floorf(timer);
@@ -111,7 +130,8 @@ void Application::Display(void)
 		int nextPointIndex = ((int)floorf(timer) + 1) % (i + 3);
 		vector3 v3CurrentPos = glm::lerp(points[i][prevPointIndex] , points[i][nextPointIndex], lerpTime);
 
-		matrix4 m4Model = glm::rotate(m4Offset, reverse * rotationAngle, vector3(0.0f, 0.0f, 1.0f));
+		matrix4 m4Model = glm::scale(m4Offset, vector3(scaleAmount));
+		m4Model = glm::rotate(m4Model, reverse * rotationAngle, vector3(0.0f, 0.0f, 1.0f));
 		m4Model = glm::translate(m4Model, v3CurrentPos);
 
 

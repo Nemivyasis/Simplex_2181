@@ -24,6 +24,7 @@ class Application
 
 	bool m_bRot = false;
 	bool m_bReverseRot = false;
+	bool m_bScale = false;
 
 private:
 	static ImGuiObject gui; //GUI object
@@ -32,6 +33,11 @@ private:
 	float m_fSpeed = 1;
 
 	float m_fRotSpeed = .5f;
+
+	float m_fMaxScale = 1.5f;
+	float m_fMinScale = 1.0;
+	float m_fScaleSpeed = 0.5f;
+	bool m_bGrow = true;
 
 
 	uint m_uRenderCallCount = 0; //count of render calls per frame

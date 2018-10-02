@@ -106,6 +106,9 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 	case sf::Keyboard::F6:
 		m_bReverseRot = !m_bReverseRot;
 		break;
+	case sf::Keyboard::F7:
+		m_bScale = !m_bScale;
+		break;
 	case sf::Keyboard::F:
 		bFPSControl = !bFPSControl;
 		m_pCameraMngr->SetFPS(bFPSControl);
