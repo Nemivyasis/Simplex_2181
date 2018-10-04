@@ -18,11 +18,14 @@ class Application
 	MyMesh* m_pMesh1 = nullptr;
 
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+
+	vector3 m_v3Angles = vector3(0.0f);
 private:
 	static ImGuiObject gui; //GUI object
 
 	uint m_uRenderCallCount = 0; //count of render calls per frame
 	uint m_uControllerCount = 0; //count of controllers connected
+
 
 	vector3 m_v3Mouse = vector3(); //position of the mouse in the window
 	bool m_bFPC = false;// First Person Camera flag
