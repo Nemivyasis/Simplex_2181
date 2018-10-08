@@ -109,6 +109,9 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 	case sf::Keyboard::F7:
 		scaleToggle = !scaleToggle;
 		break;
+	case sf::Keyboard::F7:
+		m_bScale = !m_bScale;
+		break;
 	case sf::Keyboard::F:
 		bFPSControl = !bFPSControl;
 		m_pCameraMngr->SetFPS(bFPSControl);

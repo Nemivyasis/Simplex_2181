@@ -41,7 +41,7 @@ void Application::DrawGUI(void)
 			ImGui::Text("	 F5: Toggle Rotation\n");
 			ImGui::Text("	 F6: Toggle Rotation Direction\n");
 			ImGui::Text("\n");
-			ImGui::Text("	 F7: Toggle Scaling\n");
+			ImGui::Text("	 F7: Toggle Scale\n");
 		}
 		ImGui::End();
 	}

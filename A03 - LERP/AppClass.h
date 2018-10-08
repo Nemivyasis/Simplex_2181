@@ -22,22 +22,22 @@ class Application
 	std::vector<uint> m_shapeList; //shape index for circles
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
 
-	bool rotToggle = false;
-	bool reverseRot = false;
-	bool scaleToggle = false;
+	bool m_bRot = false;
+	bool m_bReverseRot = false;
+	bool m_bScale = false;
+
 private:
 	static ImGuiObject gui; //GUI object
 	
 	vector3** points;
-	float sphereSpeed = 1;
+	float m_fSpeed = 1;
 
-	float scaleCycle = 2;
-	float scaleMax = 1.5;
-	float scaleMin = 1;
-	float scaleSpeed = .5f;
-	
+	float m_fRotSpeed = .5f;
 
-	float rotSpeed = .5f;
+	float m_fMaxScale = 1.5f;
+	float m_fMinScale = 1.0;
+	float m_fScaleSpeed = 0.5f;
+	bool m_bGrow = true;
 
 
 	uint m_uRenderCallCount = 0; //count of render calls per frame
