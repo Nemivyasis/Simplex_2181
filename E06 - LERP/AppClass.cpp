@@ -26,6 +26,7 @@ void Application::InitVariables(void)
 	m_stopsList.push_back(vector3(5.0f, 2.0f, -5.0f));
 
 	m_stopsList.push_back(vector3(1.0f, 3.0f, -5.0f));
+
 }
 void Application::Update(void)
 {
@@ -62,13 +63,18 @@ void Application::Display(void)
 	float timer;
 	int runThrough;
 
+	//how many times did the character go through the points
 	runThrough = floorf(fTimer / (m_stopsList.size() - 1));
+
+	//what is the timer from the start of the current runthrough
 	timer = fTimer - runThrough * (m_stopsList.size() - 1);
 
-	std::cout << runThrough << " " << timer << std::endl;
+	//go backwards every other runthrough
 	if (runThrough % 2 == 1) {
 		timer = (m_stopsList.size() - 1) - timer;
 	}
+
+	//calculate current position given the timer
 	v3CurrentPos = glm::lerp(m_stopsList[floorf(timer)], m_stopsList[floorf(timer) + 1], timer - floorf(timer));
 	
 

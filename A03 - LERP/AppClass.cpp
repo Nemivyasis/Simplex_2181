@@ -2,7 +2,7 @@
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Vince DiCocco - vdd7204@rit.edu";
 	
 	//Set the position and target of the camera
 	//(I'm at [0,0,10], looking at [0,0,0] and up is the positive Y axis)
@@ -83,16 +83,33 @@ void Application::Display(void)
 	static float timer = 0;
 	static uint clock = m_pSystem->GenClock();
 	float deltaTime = m_pSystem->GetDeltaTime(clock);
-	timer +=  deltaTime * m_fSpeed; //get the delta time for that timer
+	timer +=  deltaTime; //get the delta time for that timer
 	
+	float positionTimer = timer * sphereSpeed;
 	static float rotationAngle = 0.0f;
-	
-	if (m_bRot) {
-		if (m_bReverseRot) {
-			rotationAngle -= deltaTime * m_fRotSpeed;
+	static float scaleTimer = 0;
+
+	if (scaleToggle) {
+		scaleTimer += deltaTime * scaleSpeed;
+	}
+
+	int scaleRunThrough = scaleTimer /(scaleCycle / 2);
+	float scaleRatio = scaleTimer - floorf(scaleRunThrough * scaleCycle / 2);
+	float scaleAmount = 0;
+
+	if (scaleRunThrough % 2 == 0) {
+		scaleAmount = scaleMin + (scaleMax - scaleMin) * scaleRatio;
+	}
+	else {
+		scaleAmount = scaleMax - (scaleMax - scaleMin) * scaleRatio;
+	}
+
+	if (rotToggle) {
+		if (reverseRot) {
+			rotationAngle -= deltaTime * rotSpeed;
 		}
 		else {
-			rotationAngle += deltaTime * m_fRotSpeed;
+			rotationAngle += deltaTime * rotSpeed;
 		}
 	}
 
@@ -104,14 +121,17 @@ void Application::Display(void)
 			reverse = -1;
 		}
 		matrix4 torusTransform = glm::rotate(m4Offset, reverse * rotationAngle, vector3(0.0f, 0.0f, 1.0f));
+		torusTransform = glm::scale(torusTransform, vector3(scaleAmount, scaleAmount, 1));
+
 		m_pMeshMngr->AddMeshToRenderList(m_shapeList[i], glm::rotate(torusTransform, 1.5708f, AXIS_X));
 		//calculate the current position
-		float lerpTime = timer - floorf(timer);
-		int prevPointIndex = (int)floorf(timer) % (i + 3);
-		int nextPointIndex = ((int)floorf(timer) + 1) % (i + 3);
+		float lerpTime = positionTimer - floorf(positionTimer);
+		int prevPointIndex = (int)floorf(positionTimer) % (i + 3);
+		int nextPointIndex = ((int)floorf(positionTimer) + 1) % (i + 3);
 		vector3 v3CurrentPos = glm::lerp(points[i][prevPointIndex] , points[i][nextPointIndex], lerpTime);
 
 		matrix4 m4Model = glm::rotate(m4Offset, reverse * rotationAngle, vector3(0.0f, 0.0f, 1.0f));
+		m4Model = glm::scale(m4Model, vector3(scaleAmount, scaleAmount, 1));
 		m4Model = glm::translate(m4Model, v3CurrentPos);
 
 
