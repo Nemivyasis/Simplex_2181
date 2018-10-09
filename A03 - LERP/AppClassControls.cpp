@@ -101,13 +101,10 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 		m_pCameraMngr->SetCameraMode(CAM_ORTHO_X);
 		break;
 	case sf::Keyboard::F5:
-		rotToggle = !rotToggle;
+		m_bRot = !m_bRot;
 		break;
 	case sf::Keyboard::F6:
-		reverseRot = !reverseRot;
-		break;
-	case sf::Keyboard::F7:
-		scaleToggle = !scaleToggle;
+		m_bReverseRot = !m_bReverseRot;
 		break;
 	case sf::Keyboard::F7:
 		m_bScale = !m_bScale;
