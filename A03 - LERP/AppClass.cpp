@@ -79,15 +79,19 @@ void Application::Display(void)
 	/*
 		The following offset will orient the orbits as in the demo, start without it to make your life easier.
 	*/
-	//m4Offset = glm::rotate(IDENTITY_M4, 1.5708f, AXIS_Z);
+	m4Offset = glm::rotate(IDENTITY_M4, 1.5708f, AXIS_Z);
+
+	//timer to keep track of delta time
 	static float timer = 0;
 	static uint clock = m_pSystem->GenClock();
 	float deltaTime = m_pSystem->GetDeltaTime(clock);
 	timer +=  deltaTime * m_fSpeed; //get the delta time for that timer
 	
+	//the amount of scaling an rotation
 	static float scaleAmount = 1.0f;
 	static float rotationAngle = 0.0f;
 	
+	//if rotation is active, rotate each frame based on whether the rotation is reversed and the speed
 	if (m_bRot) {
 		if (m_bReverseRot) {
 			rotationAngle -= deltaTime * m_fRotSpeed;
@@ -98,6 +102,8 @@ void Application::Display(void)
 	}
 
 
+	//if scale is active, check grow (so that it goes back and forth)
+	//grows and shrinks by scalespeed
 	if (m_bScale) {
 		if (m_bGrow) {
 			scaleAmount += deltaTime * m_fScaleSpeed;
@@ -117,19 +123,32 @@ void Application::Display(void)
 	// draw a shapes
 	for (uint i = 0; i < m_uOrbits; ++i)
 	{
+		//reverse the rotation each polygon
 		int reverse = 1;
 		if (i % 2 == 1) {
 			reverse = -1;
 		}
+
+		//scale, then rotate
 		matrix4 torusTransform = glm::scale(m4Offset, vector3(scaleAmount));
 		torusTransform = glm::rotate(torusTransform, reverse * rotationAngle, vector3(0.0f, 0.0f, 1.0f));
 		m_pMeshMngr->AddMeshToRenderList(m_shapeList[i], glm::rotate(torusTransform, 1.5708f, AXIS_X));
 		//calculate the current position
+
+		//floorf(timer) finds the current index
+		//timer - floorf(timer) finds how much to lerp between the current index point and the next index point
+
+		//the time between each point (the amount a thing has lerped between
 		float lerpTime = timer - floorf(timer);
+
+		//the starting point
 		int prevPointIndex = (int)floorf(timer) % (i + 3);
+
+		//the ending point
 		int nextPointIndex = ((int)floorf(timer) + 1) % (i + 3);
 		vector3 v3CurrentPos = glm::lerp(points[i][prevPointIndex] , points[i][nextPointIndex], lerpTime);
 
+		//scale then rotate then translate
 		matrix4 m4Model = glm::scale(m4Offset, vector3(scaleAmount));
 		m4Model = glm::rotate(m4Model, reverse * rotationAngle, vector3(0.0f, 0.0f, 1.0f));
 		m4Model = glm::translate(m4Model, v3CurrentPos);
@@ -154,6 +173,15 @@ void Application::Display(void)
 }
 void Application::Release(void)
 {
+	//clean up memory
+	for (int i = 0; i < m_uOrbits; i++)
+	{
+		delete[] points[i];
+	}
+
+	delete[] points;
+
+
 	//release GUI
 	ShutdownGUI();
 }
