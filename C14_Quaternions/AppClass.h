@@ -19,6 +19,8 @@ class Application
 	matrix4 m_m4Steve; //Model to world matrix for Steve
 	quaternion m_qOrientation; //orientation for the Model in quaternions
 
+	float m_fFovy = 45.0f;
+
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
 
 private:

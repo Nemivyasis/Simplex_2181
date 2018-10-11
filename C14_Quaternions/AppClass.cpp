@@ -69,6 +69,18 @@ void Application::Display(void)
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
 
+	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
+	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
+	
+	float fovy = 60.0f; //field of view
+	float aspect = m_pSystem->GetWindowWidth() / m_pSystem->GetWindowHeight(); //aspect ration
+	float zNear = .0001f; //near clipping plane
+	float zFar = 1000.0f; //far clipping plane
+
+	m4Projection = glm::perspective(fovy, aspect, zNear, zFar);
+	//use these lines for homework to send back calculated matrices to camera
+	m_pCameraMngr->SetProjectionMatrix(m4Projection);
+	m_pCameraMngr->SetViewMatrix(m4View);
 	//render list call
 	m_uRenderCallCount = m_pMeshMngr->Render();
 
