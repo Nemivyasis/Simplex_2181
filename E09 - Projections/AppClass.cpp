@@ -50,25 +50,38 @@ void Application::Display(void)
 	{
 	default:
 	case 1:
+		std::cout << "Hi" << std::endl;
+
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPositionTargetAndUpward(AXIS_Z * 10.0f, ZERO_V3, AXIS_Y);
 		break;
 	case 2:
+
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPerspective(false);
+		m_pCamera->SetPositionTargetAndUpward(AXIS_Z * 10, ZERO_V3, AXIS_Y);
 		break;
 	case 3:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPositionTargetAndUpward(AXIS_X * 25, ZERO_V3, -AXIS_Z);
 		break;
 	case 4:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPositionTargetAndUpward(AXIS_Z * -15, ZERO_V3, AXIS_Y);
 		break;
 	case 5:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPositionTargetAndUpward(AXIS_Z * -15, ZERO_V3, AXIS_Y);
+		m_pCamera->SetNearFar(vector2(5, 100));
 		break;
 	case 6:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPositionTargetAndUpward(AXIS_Z * -15, ZERO_V3, AXIS_Y);
+		m_pCamera->SetNearFar(vector2(1, 12.5f));
 		break;
 	case 7:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPositionTargetAndUpward(AXIS_Z * 10.0f, ZERO_V3, -AXIS_Y);
 		break;
 	}
 

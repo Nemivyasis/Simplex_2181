@@ -390,6 +390,10 @@ void Application::ProcessKeyboard(void)
 		m_pCamera->MoveForward(fSpeed);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		m_pCamera->MoveForward(-fSpeed);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		m_pCamera->MoveSideways(fSpeed);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		m_pCamera->MoveSideways(-fSpeed);
 #pragma endregion
 }
 //Joystick
@@ -416,7 +420,59 @@ void Application::ProcessJoystick(void)
 	}
 #pragma endregion
 #pragma region Camera Orientation
-	//Change the Yaw and the Pitch of the camera
+	float speed = .1f;
+
+	UINT	MouseX, MouseY;		// Coordinates for the mouse
+	UINT	CenterX, CenterY;	// Coordinates for the center of the screen.
+
+								//Initialize the position of the pointer to the middle of the screen
+	CenterX = m_pSystem->GetWindowX() + m_pSystem->GetWindowWidth() / 2;
+	CenterY = m_pSystem->GetWindowY() + m_pSystem->GetWindowHeight() / 2;
+
+	POINT pt;
+	GetCursorPos(&pt);
+	MouseX = pt.x;
+	MouseY = pt.y;
+
+	//Calculate the difference in view with the angle
+	float fAngleX = 0.0f;
+	float fAngleY = 0.0f;
+	float fDeltaMouse = 0.0f;
+	if (MouseX < CenterX)
+	{
+		fDeltaMouse = static_cast<float>(CenterX - MouseX);
+		fAngleX += fDeltaMouse * speed;
+	}
+	else if (MouseX > CenterX)
+	{
+		fDeltaMouse = static_cast<float>(MouseX - CenterX);
+		fAngleX -= fDeltaMouse * speed;
+	}
+
+	if (MouseY < CenterY&& gui.m_bMousePressed[2])
+	{
+		fDeltaMouse = static_cast<float>(CenterY - MouseY);
+		m_fYAngle -= fDeltaMouse * speed;
+	}
+	else if (MouseY > CenterY && gui.m_bMousePressed[2])
+	{
+		fDeltaMouse = static_cast<float>(MouseY - CenterY);
+		m_fYAngle += fDeltaMouse * speed;
+	}
+
+	if (m_fYAngle >= 89.9) {
+		m_fYAngle = 89.9;
+	}
+	if (m_fYAngle <= -89.9) {
+		m_fYAngle = -89.9;
+	}
+	float yAngle = m_fYAngle - m_prevYAngle;
+	m_prevYAngle = m_fYAngle;
+	m_pCamera->RotateVertical(yAngle);
+
+	if (fAngleX != 0 && gui.m_bMousePressed[2]) {
+		m_pCamera->RotateHorizontal(fAngleX);
+	}
 #pragma endregion
 #pragma region ModelOrientation Orientation
 	m_qArcBall = quaternion(vector3(glm::radians(m_pController[m_uActCont]->axis[SimplexAxis_POVY] / 20.0f), 0.0f, 0.0f)) * m_qArcBall;
