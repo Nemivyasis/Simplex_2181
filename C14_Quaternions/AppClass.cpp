@@ -10,6 +10,9 @@ void Application::InitVariables(void)
 
 	//Load a model
 	m_pModel->Load("Minecraft\\Steve.obj");
+
+	m_pMesh = new MyMesh();
+	m_pMesh->GenerateCube(7.0f, C_RED);
 }
 void Application::Update(void)
 {
@@ -31,7 +34,7 @@ void Application::Update(void)
 	if (false)
 	{
 		quaternion q1;
-		quaternion q2 = glm::angleAxis(glm::radians(359.9f), vector3(0.0f, 0.0f, 1.0f));
+		quaternion q2 = glm::angleAxis(glm::radians(90.0f), vector3(0.0f, 0.0f, 1.0f));
 		float fPercentage = MapValue(fTimer, 0.0f, 5.0f, 0.0f, 1.0f);
 		quaternion qSLERP = glm::mix(q1, q2, fPercentage);
 		m_m4Steve = glm::toMat4(qSLERP);
@@ -58,8 +61,7 @@ void Application::Update(void)
 	//Attach the model matrix that takes me from the world coordinate system
 	m_pModel->SetModelMatrix(m_m4Steve);
 
-	//Send the model to render list
-	m_pModel->AddToRenderList();
+
 }
 void Application::Display(void)
 {
@@ -69,18 +71,21 @@ void Application::Display(void)
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
 
-	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
-	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
-	
-	float fovy = 60.0f; //field of view
-	float aspect = m_pSystem->GetWindowWidth() / m_pSystem->GetWindowHeight(); //aspect ration
+	float fovy = 45.0f; //field of view
+	float aspect = static_cast<float>(m_pSystem->GetWindowWidth()) / static_cast<float>(m_pSystem->GetWindowHeight()); //aspect ration
 	float zNear = .0001f; //near clipping plane
-	float zFar = 1000.0f; //far clipping plane
+	float zFar = 10000.0f; //far clipping plane
 
+	matrix4 m4Model = IDENTITY_M4;//glm::translate(m_v3Orientation);
+	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
+	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
+	//m4Projection = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, 0.01f, 1000.0f);
 	m4Projection = glm::perspective(fovy, aspect, zNear, zFar);
+	//Send the model to render list
+	//m_pModel->AddToRenderList();
+
+	m_pMesh->Render(m4Projection, m4View, m4Model);
 	//use these lines for homework to send back calculated matrices to camera
-	m_pCameraMngr->SetProjectionMatrix(m4Projection);
-	m_pCameraMngr->SetViewMatrix(m4View);
 	//render list call
 	m_uRenderCallCount = m_pMeshMngr->Render();
 
@@ -97,7 +102,7 @@ void Application::Release(void)
 {
 	//release model
 	SafeDelete(m_pModel);
-
+	SafeDelete(m_pMesh);
 	//release GUI
 	ShutdownGUI();
 }
