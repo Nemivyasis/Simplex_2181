@@ -394,6 +394,10 @@ void Application::ProcessKeyboard(void)
 		m_pCamera->MoveSideways(fSpeed);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		m_pCamera->MoveSideways(-fSpeed);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+		m_pCamera->MoveVertical(fSpeed);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+		m_pCamera->MoveVertical(-fSpeed);
 #pragma endregion
 }
 //Joystick
@@ -470,6 +474,7 @@ void Application::ProcessJoystick(void)
 	m_prevYAngle = m_fYAngle;
 	m_pCamera->RotateVertical(yAngle);
 
+	std::cout << fAngleX << std::endl;
 	if (fAngleX != 0 && gui.m_bMousePressed[2]) {
 		m_pCamera->RotateHorizontal(fAngleX);
 	}

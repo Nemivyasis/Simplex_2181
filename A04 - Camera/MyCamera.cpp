@@ -162,13 +162,20 @@ void MyCamera::MoveForward(float a_fDistance)
 	m_v3Above += forward;
 }
 
-void MyCamera::MoveVertical(float a_fDistance){}//Needs to be defined
+void MyCamera::MoveVertical(float a_fDistance){
+	vector3 up = (m_v3Above - m_v3Position);
+	up = glm::normalize(up);
+	up *= a_fDistance;
+	//The following is just an example and does not take in account the forward vector (AKA view vector)
+	m_v3Position += up;
+	m_v3Target += up;
+	m_v3Above += up;
+}//Needs to be defined
 void MyCamera::MoveSideways(float a_fDistance){
 	vector3 forward = vector3(m_v3Target.x - m_v3Position.x, 0, m_v3Target.z - m_v3Position.z);
 
 	float magnitude = sqrtf(forward.x * forward.x + forward.y * forward.y + forward.z * forward.z);
 	forward = forward / magnitude;
-	std::cout << forward.length() << std::endl;
 	forward *= a_fDistance;
 
 	forward = matrix3(vector3(0, 0, -1), vector3(0, 1, 0), vector3(1, 0, 0)) * forward;
