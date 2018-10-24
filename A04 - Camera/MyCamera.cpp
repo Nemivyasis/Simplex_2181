@@ -152,11 +152,13 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 
 void MyCamera::MoveForward(float a_fDistance)
 {
+	//forward vector
 	vector3 forward = (m_v3Target - m_v3Position);
 	float magnitude = sqrtf(forward.x * forward.x + forward.y * forward.y + forward.z * forward.z);
 	forward = forward / magnitude;
 	forward *= a_fDistance;
-	//The following is just an example and does not take in account the forward vector (AKA view vector)
+	
+	//move forward or back
 	m_v3Position += forward;
 	m_v3Target += forward;
 	m_v3Above += forward;
@@ -166,7 +168,8 @@ void MyCamera::MoveVertical(float a_fDistance){
 	vector3 up = (m_v3Above - m_v3Position);
 	up = glm::normalize(up);
 	up *= a_fDistance;
-	//The following is just an example and does not take in account the forward vector (AKA view vector)
+	
+	//move up or down
 	m_v3Position += up;
 	m_v3Target += up;
 	m_v3Above += up;
@@ -174,20 +177,31 @@ void MyCamera::MoveVertical(float a_fDistance){
 void MyCamera::MoveSideways(float a_fDistance){
 	vector3 forward = vector3(m_v3Target.x - m_v3Position.x, 0, m_v3Target.z - m_v3Position.z);
 
+	//get the right vector normalized
 	float magnitude = sqrtf(forward.x * forward.x + forward.y * forward.y + forward.z * forward.z);
 	forward = forward / magnitude;
 	forward *= a_fDistance;
 
 	forward = matrix3(vector3(0, 0, -1), vector3(0, 1, 0), vector3(1, 0, 0)) * forward;
-	//The following is just an example and does not take in account the forward vector (AKA view vector)
+	
+	//move right (or left)
 	m_v3Position += forward;
 	m_v3Target += forward;
 	m_v3Above += forward;
 }//Needs to be defined
 
 void MyCamera::RotateVertical(float angle) {
+	//limit angle
+	if (angle > 5) {
+		angle = 5;
+	}
+	else if (angle < -5) {
+		angle = -5;
+	}
+
 	angle = glm::radians(angle);
 
+	//important vectors
 	vector3 forward = m_v3Target - m_v3Position;
 	vector3 up = m_v3Above - m_v3Position;
 	vector3 right = glm::rotate(forward, glm::radians(90.0f), up);
@@ -195,14 +209,24 @@ void MyCamera::RotateVertical(float angle) {
 	right = glm::normalize(right);
 
 
+	//rotate the camera
 	m_v3Target = glm::rotate(m_v3Target - m_v3Position, angle, right) + m_v3Position;
 	m_v3Above = glm::rotate(m_v3Above - m_v3Position, angle, right) + m_v3Position;;
 }
 
 void MyCamera::RotateHorizontal(float angle) {
-	angle = glm::radians(angle);
-	matrix3 rotation = matrix3(vector3(cosf(angle), 0, sinf(angle)), vector3(0, 1,  0), vector3(-sinf(angle), 0,  cosf(angle)));
+	//limit angle
+	if (angle > 5) {
+		angle = 5;
+	}
+	else if (angle < -5) {
+		angle = -5;
+	}
 
+
+	angle = glm::radians(angle);
+
+	//rotate the camera
 	m_v3Target = glm::rotate(m_v3Target - m_v3Position, angle, vector3(0,1,0)) + m_v3Position;
 	m_v3Above = glm::rotate(m_v3Above - m_v3Position, angle, vector3(0, 1, 0)) + m_v3Position;
 }
