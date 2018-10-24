@@ -456,27 +456,18 @@ void Application::ProcessJoystick(void)
 	if (MouseY < CenterY&& gui.m_bMousePressed[2])
 	{
 		fDeltaMouse = static_cast<float>(CenterY - MouseY);
-		m_fYAngle -= fDeltaMouse * speed;
+		fAngleY -= fDeltaMouse * speed;
 	}
 	else if (MouseY > CenterY && gui.m_bMousePressed[2])
 	{
 		fDeltaMouse = static_cast<float>(MouseY - CenterY);
-		m_fYAngle += fDeltaMouse * speed;
+		fAngleY += fDeltaMouse * speed;
 	}
 
-	//limit the angle to 90 or -90
-	if (m_fYAngle >= 89.9) {
-		m_fYAngle = 89.9;
-	}
-	if (m_fYAngle <= -89.9) {
-		m_fYAngle = -89.9;
-	}
-
-	//find how much to rotate the camera to get the new angle
-	float yAngle = m_fYAngle - m_prevYAngle;
-	m_prevYAngle = m_fYAngle;
 	//rotate camera
-	m_pCamera->RotateVertical(yAngle);
+	if (fAngleY != 0 && gui.m_bMousePressed[2]) {
+		m_pCamera->RotateVertical(fAngleY);
+	}
 
 	if (fAngleX != 0 && gui.m_bMousePressed[2]) {
 		m_pCamera->RotateHorizontal(fAngleX);

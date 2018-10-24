@@ -175,19 +175,20 @@ void MyCamera::MoveVertical(float a_fDistance){
 	m_v3Above += up;
 }//Needs to be defined
 void MyCamera::MoveSideways(float a_fDistance){
-	vector3 forward = vector3(m_v3Target.x - m_v3Position.x, 0, m_v3Target.z - m_v3Position.z);
+	vector3 forward = m_v3Target - m_v3Position;
 
 	//get the right vector normalized
 	float magnitude = sqrtf(forward.x * forward.x + forward.y * forward.y + forward.z * forward.z);
 	forward = forward / magnitude;
 	forward *= a_fDistance;
-
-	forward = matrix3(vector3(0, 0, -1), vector3(0, 1, 0), vector3(1, 0, 0)) * forward;
 	
+	vector3 up = m_v3Above - m_v3Position;
+
+	vector3 right = glm::rotate(forward, glm::radians(90.0f), up);
 	//move right (or left)
-	m_v3Position += forward;
-	m_v3Target += forward;
-	m_v3Above += forward;
+	m_v3Position += right;
+	m_v3Target += right;
+	m_v3Above += right;
 }//Needs to be defined
 
 void MyCamera::RotateVertical(float angle) {
@@ -210,8 +211,10 @@ void MyCamera::RotateVertical(float angle) {
 
 
 	//rotate the camera
+
 	m_v3Target = glm::rotate(m_v3Target - m_v3Position, angle, right) + m_v3Position;
-	m_v3Above = glm::rotate(m_v3Above - m_v3Position, angle, right) + m_v3Position;;
+	m_v3Above = glm::rotate(m_v3Above - m_v3Position, angle, right) + m_v3Position;
+
 }
 
 void MyCamera::RotateHorizontal(float angle) {
