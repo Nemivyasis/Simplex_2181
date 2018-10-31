@@ -85,8 +85,38 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	m_m4ToWorld = a_m4ModelMatrix;
 	
 	//your code goes here---------------------
-	m_v3MinG = m_v3MinL;
-	m_v3MaxG = m_v3MaxL;
+	vector4 newMax = m_m4ToWorld * vector4(m_v3MaxL, 1);
+	vector4 newMin = m_m4ToWorld * vector4(m_v3MinL, 1);
+
+	std::vector<vector4> newPoints = std::vector<vector4>();
+	newPoints.push_back(newMax);
+	newPoints.push_back(newMax - m_m4ToWorld * (vector4(m_v3HalfWidth.x, 0, 0, 0) * 2));
+	newPoints.push_back(newMax - m_m4ToWorld * (vector4(0, m_v3HalfWidth.y, 0, 0) * 2));
+	newPoints.push_back(newMax - m_m4ToWorld * (vector4(0, 0, m_v3HalfWidth.z, 0) * 2));
+
+	newPoints.push_back(newMin);
+	newPoints.push_back(newMin + m_m4ToWorld * (vector4(m_v3HalfWidth.x, 0, 0, 0) * 2));
+	newPoints.push_back(newMin + m_m4ToWorld * (vector4(0, m_v3HalfWidth.y, 0, 0) * 2));
+	newPoints.push_back(newMin + m_m4ToWorld * (vector4(0, 0, m_v3HalfWidth.z, 0) * 2));
+
+	vector3 newBoxMax = newPoints[0];
+	vector3 newBoxMin = newPoints[0];
+
+	//Get the max and min out of the list
+	for (uint i = 1; i < 8; ++i)
+	{
+		if (newBoxMax.x < newPoints[i].x) newBoxMax.x = newPoints[i].x;
+		else if (newBoxMin.x > newPoints[i].x) newBoxMin.x = newPoints[i].x;
+
+		if (newBoxMax.y < newPoints[i].y) newBoxMax.y = newPoints[i].y;
+		else if (newBoxMin.y > newPoints[i].y) newBoxMin.y = newPoints[i].y;
+
+		if (newBoxMax.z < newPoints[i].z) newBoxMax.z = newPoints[i].z;
+		else if (newBoxMin.z > newPoints[i].z) newBoxMin.z = newPoints[i].z;
+	}
+
+	m_v3MinG = vector3(newBoxMin);
+	m_v3MaxG = vector3(newBoxMax);
 	//----------------------------------------
 
 	//we calculate the distance between min and max vectors
