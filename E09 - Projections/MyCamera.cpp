@@ -128,7 +128,6 @@ void Simplex::MyCamera::ResetCamera(void)
 void Simplex::MyCamera::SetPositionTargetAndUpward(vector3 a_v3Position, vector3 a_v3Target, vector3 a_v3Upward)
 {
 	m_v3Position = a_v3Position;
-	std::cout << m_v3Position.x << ", " << m_v3Position.y << ", " << m_v3Position.z << std::endl;
 	m_v3Target = a_v3Target;
 	m_v3Up = a_v3Upward;
 }

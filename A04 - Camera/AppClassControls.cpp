@@ -394,6 +394,10 @@ void Application::ProcessKeyboard(void)
 		m_pCamera->MoveSideways(fSpeed);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		m_pCamera->MoveSideways(-fSpeed);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+		m_pCamera->MoveVertical(fSpeed);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+		m_pCamera->MoveVertical(-fSpeed);
 #pragma endregion
 }
 //Joystick
@@ -452,23 +456,18 @@ void Application::ProcessJoystick(void)
 	if (MouseY < CenterY&& gui.m_bMousePressed[2])
 	{
 		fDeltaMouse = static_cast<float>(CenterY - MouseY);
-		m_fYAngle -= fDeltaMouse * speed;
+		fAngleY -= fDeltaMouse * speed;
 	}
 	else if (MouseY > CenterY && gui.m_bMousePressed[2])
 	{
 		fDeltaMouse = static_cast<float>(MouseY - CenterY);
-		m_fYAngle += fDeltaMouse * speed;
+		fAngleY += fDeltaMouse * speed;
 	}
 
-	if (m_fYAngle >= 89.9) {
-		m_fYAngle = 89.9;
+	//rotate camera
+	if (fAngleY != 0 && gui.m_bMousePressed[2]) {
+		m_pCamera->RotateVertical(fAngleY);
 	}
-	if (m_fYAngle <= -89.9) {
-		m_fYAngle = -89.9;
-	}
-	float yAngle = m_fYAngle - m_prevYAngle;
-	m_prevYAngle = m_fYAngle;
-	m_pCamera->RotateVertical(yAngle);
 
 	if (fAngleX != 0 && gui.m_bMousePressed[2]) {
 		m_pCamera->RotateHorizontal(fAngleX);
