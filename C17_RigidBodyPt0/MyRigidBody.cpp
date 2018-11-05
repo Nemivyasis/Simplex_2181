@@ -63,6 +63,47 @@ void MyRigidBody::Release(void)
 MyRigidBody::MyRigidBody(std::vector<vector3> a_pointList)
 {
 	Init();
+
+	uint points = a_pointList.size();
+
+	if (points == 0)
+		return;
+
+	m_v3MinL = a_pointList[0];
+	m_v3MaxL = a_pointList[0];
+
+	for (uint i = 1; i < points; i++)
+	{
+		if (m_v3MinL.x > a_pointList[i].x)
+			m_v3MinL.x = a_pointList[i].x;
+		else if (m_v3MaxL.x < a_pointList[i].x)
+			m_v3MaxL.x = a_pointList[i].x;
+
+		if (m_v3MinL.y > a_pointList[i].y)
+			m_v3MinL.y = a_pointList[i].y;
+		else if (m_v3MaxL.y < a_pointList[i].y)
+			m_v3MaxL.y = a_pointList[i].y;
+
+		if (m_v3MinL.z > a_pointList[i].z)
+			m_v3MinL.z = a_pointList[i].z;
+		else if (m_v3MaxL.z < a_pointList[i].z)
+			m_v3MaxL.z = a_pointList[i].z;
+	}
+
+	m_v3Center = (m_v3MaxL + m_v3MinL) / 2.0f;
+
+	for (uint i = 0; i < points; i++)
+	{
+		float pointDist = glm::distance2(a_pointList[i], m_v3Center);
+
+		if (pointDist > m_fRadius) {
+			m_fRadius = pointDist;
+		}
+	}
+
+	m_fRadius = glm::sqrt(m_fRadius);
+
+	m_v3HalfWidth = (m_v3MaxL - m_v3MinL) / 2.0f;
 }
 MyRigidBody::MyRigidBody(MyRigidBody const& other)
 {
@@ -102,8 +143,36 @@ void MyRigidBody::AddToRenderList(void)
 {
 	if (!m_bVisible)
 		return;
+
+	//m_pMeshMngr->AddWireSphereToRenderList( m_m4ToWorld* glm::translate(m_v3Center)* glm::scale(vector3(m_fRadius)), m_v3Color, RENDER_SOLID);
+
+	m_pMeshMngr->AddWireCubeToRenderList(m_m4ToWorld* glm::translate(m_v3Center)* glm::scale(m_v3HalfWidth * 2), m_v3Color, RENDER_SOLID);
 }
 bool MyRigidBody::IsColliding(MyRigidBody* const other)
 {
-	return false;
+	bool bColliding = true;
+
+	m_v3MaxG = m_m4ToWorld * vector4(m_v3MaxL, 1.0f);
+	m_v3MinG = m_m4ToWorld * vector4(m_v3MinL, 1.0f);
+	other->m_v3MaxG = other->m_m4ToWorld * vector4(other->m_v3MaxL, 1.0f);
+	other->m_v3MinG = other->m_m4ToWorld * vector4(other->m_v3MinL, 1.0f);
+
+	if (m_v3MaxG.x < other->m_v3MinG.x)
+		bColliding = false;
+	if (m_v3MaxG.y < other->m_v3MinG.y)
+		bColliding = false;
+	if (m_v3MaxG.z < other->m_v3MinG.z)
+		bColliding = false;
+	if (m_v3MinG.x > other->m_v3MaxG.x)
+		bColliding = false;
+	if (m_v3MinG.y > other->m_v3MaxG.y)
+		bColliding = false;
+	if (m_v3MinG.z > other->m_v3MaxG.z)
+		bColliding = false;
+
+	return bColliding;
+	/*vector3 v3Center1 = m_m4ToWorld * vector4(m_v3Center, 1.0f);
+	vector3 v3Center2 = other->m_m4ToWorld * vector4(other->m_v3Center, 1.0f);
+
+	return glm::distance(v3Center1, v3Center2) < (m_fRadius + other->m_fRadius);*/
 }
