@@ -246,7 +246,9 @@ private:
 	ARGUMENTS: MyRigidBody* const a_pOther -> other rigid body to test against
 	OUTPUT: 0 for colliding, other = first axis that succeeds test
 	*/
-	uint SAT(MyRigidBody* const a_pOther);
+	uint SAT(MyRigidBody* const a_pOther, vector3& hitpoint);
+
+	vector3 Projection(vector3 u, vector3 v);
 };//class
 
 } //namespace Simplex
