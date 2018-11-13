@@ -232,8 +232,77 @@ bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 	//if they are colliding check the SAT
 	if (bColliding)
 	{
-		if(SAT(a_pOther) != eSATResults::SAT_NONE)
+		vector3 hitPoint = vector3(0.0f);
+		eSATResults results = (eSATResults)SAT(a_pOther, hitPoint);
+
+		if(results != eSATResults::SAT_NONE)
 			bColliding = false;// reset to false
+
+		matrix4 planeDrawMatrix = IDENTITY_M4;
+		matrix4 reversedDrawMatrix = IDENTITY_M4;
+		matrix4 rotation = IDENTITY_M4;
+		matrix4 translation = IDENTITY_M4;
+
+
+		vector4 globalCenter = m_m4ToWorld * vector4(m_v3Center, 1.0f);
+		vector4 otherGlobalCenter = a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3Center, 1.0f);
+
+		/*switch (results)
+		{
+			case Simplex::SAT_AX:
+
+				rotation = matrix4(matrix3(m_m4ToWorld)) * planeDrawMatrix; 
+				translation = glm::translate(planeDrawMatrix, (hitPoint));
+
+				planeDrawMatrix = translation * rotation;
+				planeDrawMatrix = glm::rotate(planeDrawMatrix, glm::radians(90.0f), AXIS_Y);
+				planeDrawMatrix = glm::scale(planeDrawMatrix, vector3(5.0f));
+
+				m_pMeshMngr->AddPlaneToRenderList(planeDrawMatrix, C_RED, 1);
+				m_pMeshMngr->AddPlaneToRenderList(glm::rotate(planeDrawMatrix, glm::radians(180.0f), AXIS_Y), C_RED, 1);
+				break;
+			case Simplex::SAT_AY:
+
+				rotation = matrix4(matrix3(m_m4ToWorld)) * planeDrawMatrix;
+				translation = glm::translate(planeDrawMatrix, (hitPoint));
+
+				planeDrawMatrix = translation * rotation;
+				planeDrawMatrix = glm::rotate(planeDrawMatrix, glm::radians(90.0f), AXIS_X);
+				planeDrawMatrix = glm::scale(planeDrawMatrix, vector3(5.0f));
+
+				m_pMeshMngr->AddPlaneToRenderList(planeDrawMatrix, C_RED, 1);
+				m_pMeshMngr->AddPlaneToRenderList(glm::rotate(planeDrawMatrix, glm::radians(180.0f), AXIS_X), C_GREEN, 1);
+				break;
+			case Simplex::SAT_AZ:
+				break;
+			case Simplex::SAT_BX:
+				break;
+			case Simplex::SAT_BY:
+				break;
+			case Simplex::SAT_BZ:
+				break;
+			case Simplex::SAT_AXxBX:
+				break;
+			case Simplex::SAT_AXxBY:
+				break;
+			case Simplex::SAT_AXxBZ:
+				break;
+			case Simplex::SAT_AYxBX:
+				break;
+			case Simplex::SAT_AYxBY:
+				break;
+			case Simplex::SAT_AYxBZ:
+				break;
+			case Simplex::SAT_AZxBX:
+				break;
+			case Simplex::SAT_AZxBY:
+				break;
+			case Simplex::SAT_AZxBZ:
+				break;
+			default:
+				break;
+		}*/
+
 	}
 
 	if (bColliding) //they are colliding
@@ -274,7 +343,7 @@ void MyRigidBody::AddToRenderList(void)
 	}
 }
 
-uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
+uint MyRigidBody::SAT(MyRigidBody* const a_pOther, vector3& hitpoint)
 {
 	/*
 	Your code goes here instead of this comment;
@@ -288,5 +357,131 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	*/
 
 	//there is no axis test that separates this two objects
+	uint separationPlanes = 0;
+	vector3 axises[15];
+	axises[0] = vector3(1, 0, 0);
+	axises[1] = vector3(0, 1, 0);
+	axises[2] = vector3(0, 0, 1);
+
+	//rotate the axises
+	for (int i = 3; i <= 5; i++)
+	{
+		axises[i] = a_pOther->m_m4ToWorld * vector4(axises[i - 3], 0.0f);
+		axises[i-3] = m_m4ToWorld * vector4(axises[i - 3], 0.0f);
+	}
+
+	//calculate the 15 axises
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			axises[i * 3 + j + 6] = glm::cross(axises[i], axises[j + 3]);
+		}
+	}
+
+	vector3 firstCubePoints[8];
+	firstCubePoints[0] = m_m4ToWorld * vector4(m_v3MaxL.x, m_v3MaxL.y, m_v3MaxL.z, 1.0f);
+	firstCubePoints[1] = m_m4ToWorld * vector4(m_v3MinL.x, m_v3MaxL.y, m_v3MaxL.z, 1.0f);
+	firstCubePoints[2] = m_m4ToWorld * vector4(m_v3MinL.x, m_v3MinL.y, m_v3MaxL.z, 1.0f);
+	firstCubePoints[3] = m_m4ToWorld * vector4(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z, 1.0f);
+	firstCubePoints[4] = m_m4ToWorld * vector4(m_v3MaxL.x, m_v3MaxL.y, m_v3MinL.z, 1.0f);
+	firstCubePoints[5] = m_m4ToWorld * vector4(m_v3MinL.x, m_v3MaxL.y, m_v3MinL.z, 1.0f);
+	firstCubePoints[6] = m_m4ToWorld * vector4(m_v3MinL.x, m_v3MinL.y, m_v3MinL.z, 1.0f);
+	firstCubePoints[7] = m_m4ToWorld * vector4(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z, 1.0f);
+
+	vector3 secondCubePoints[8];
+	secondCubePoints[0] = a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3MaxL.x, a_pOther->m_v3MaxL.y, a_pOther->m_v3MaxL.z, 1.0f);
+	secondCubePoints[1] = a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3MinL.x, a_pOther->m_v3MaxL.y, a_pOther->m_v3MaxL.z, 1.0f);
+	secondCubePoints[2] = a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3MinL.x, a_pOther->m_v3MinL.y, a_pOther->m_v3MaxL.z, 1.0f);
+	secondCubePoints[3] = a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3MaxL.x, a_pOther->m_v3MinL.y, a_pOther->m_v3MaxL.z, 1.0f);
+	secondCubePoints[4] = a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3MaxL.x, a_pOther->m_v3MaxL.y, a_pOther->m_v3MinL.z, 1.0f);
+	secondCubePoints[5] = a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3MinL.x, a_pOther->m_v3MaxL.y, a_pOther->m_v3MinL.z, 1.0f);
+	secondCubePoints[6] = a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3MinL.x, a_pOther->m_v3MinL.y, a_pOther->m_v3MinL.z, 1.0f);
+	secondCubePoints[7] = a_pOther->m_m4ToWorld * vector4(a_pOther->m_v3MaxL.x, a_pOther->m_v3MinL.y, a_pOther->m_v3MinL.z, 1.0f);
+
+	//check the projections
+	for (int i = 0; i < 15; i++)
+	{
+		if (axises[i] == vector3(0.0f)) {
+			continue;
+		}
+
+		vector3 projectedFirstCube[8];
+		vector3 projectedSecondCube[8];
+
+		for (int j = 0; j < 8; j++)
+		{
+			projectedFirstCube[j] = Projection(firstCubePoints[j], axises[i]);
+			projectedSecondCube[j] = Projection(secondCubePoints[j], axises[i]);
+		}
+
+		vector3 maxFirst = projectedFirstCube[0];
+		vector3 minFirst = projectedFirstCube[0];
+		vector3 maxSecond = projectedSecondCube[0];
+		vector3 minSecond = projectedSecondCube[0];
+
+		for (size_t i = 1; i < 8; i++)
+		{
+			if (projectedFirstCube[i].x > maxFirst.x)
+				maxFirst.x = projectedFirstCube[i].x;
+			else if(projectedFirstCube[i].x < minFirst.x)
+				minFirst.x = projectedFirstCube[i].x;
+
+			if (projectedFirstCube[i].y > maxFirst.y)
+				maxFirst.y = projectedFirstCube[i].y;
+			else if (projectedFirstCube[i].y < minFirst.y)
+				minFirst.y = projectedFirstCube[i].y;
+
+			if (projectedFirstCube[i].z > maxFirst.z)
+				maxFirst.z = projectedFirstCube[i].z;
+			else if (projectedFirstCube[i].z < minFirst.z)
+				minFirst.z = projectedFirstCube[i].z;
+
+			if (projectedSecondCube[i].x > maxSecond.x)
+				maxSecond.x = projectedSecondCube[i].x;
+			else if (projectedSecondCube[i].x < minSecond.x)
+				minSecond.x = projectedSecondCube[i].x;
+
+			if (projectedSecondCube[i].y > maxSecond.y)
+				maxSecond.y = projectedSecondCube[i].y;
+			else if (projectedSecondCube[i].y < minSecond.y)
+				minSecond.y = projectedSecondCube[i].y;
+
+			if (projectedSecondCube[i].z > maxSecond.z)
+				maxSecond.z = projectedSecondCube[i].z;
+			else if (projectedSecondCube[i].z < minSecond.z)
+				minSecond.z = projectedSecondCube[i].z;
+		}
+
+		vector3 firstCenter = (maxFirst + minFirst) / 2;
+		vector3 secondCenter = (maxSecond + minSecond) / 2;
+
+		float firstDistance = glm::distance(maxFirst, minFirst);
+		float secondDistance = glm::distance(maxSecond, minSecond);
+
+		if (glm::distance(firstCenter, secondCenter) > (firstDistance + secondDistance) / 2) {
+			//std::cout << i + 1 << std::endl;
+			
+			vector3 completeCenter = (GetCenterGlobal() + a_pOther->GetCenterGlobal()) / 2;
+			vector3 centerProj = Projection(completeCenter, axises[i]);
+
+			vector3 centDiff = completeCenter - centerProj;
+			//std::cout << centDiff.x << ", " << centDiff.y << ", " << centDiff.z << std::endl;
+			if (firstCenter.x / axises[i].x > secondCenter.x / axises[i].x) {
+				hitpoint = ((firstCenter - axises[i] * firstDistance) + (secondCenter + axises[i] * secondDistance)) / 2 + centDiff;
+			}
+			else {
+				hitpoint = ((firstCenter + axises[i] * firstDistance / 2) + (secondCenter - axises[i] * secondDistance / 2)) / 2 + centDiff;
+			}
+			return i + 1;
+		}
+	}
+
+
 	return eSATResults::SAT_NONE;
+}
+
+vector3 MyRigidBody::Projection(vector3 u, vector3 v)
+{
+	return glm::dot(u, v) / glm::distance2(vector3(0), v) * v;
 }
