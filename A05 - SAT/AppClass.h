@@ -10,6 +10,7 @@ Date: 2017/06
 #include "ControllerConfiguration.h"
 #include "imgui\ImGuiObject.h"
 
+#include "MyOctantExample.h"
 #include "MyRigidBody.h"
 
 namespace Simplex

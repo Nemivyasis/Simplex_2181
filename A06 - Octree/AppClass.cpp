@@ -30,7 +30,15 @@ void Application::InitVariables(void)
 		}
 	}
 	m_uOctantLevels = 1;
+
+	oct = new MyOctant(1, 5);
+	oct->ConstructTree(1, 5);
+
 	m_pEntityMngr->Update();
+
+
+
+	std::cout << "test";
 }
 void Application::Update(void)
 {
@@ -42,8 +50,10 @@ void Application::Update(void)
 
 	//Is the first person camera active?
 	CameraRotation();
-	
-	//Update Entity Manager
+
+	oct->AssignIDtoEntity();
+
+	//Update Entity Manager	
 	m_pEntityMngr->Update();
 
 	//Add objects to render list
@@ -53,9 +63,10 @@ void Application::Display(void)
 {
 	// Clear the screen
 	ClearScreen();
-
+	
 	//display octree
-	//m_pRoot->Display();
+	if(octShown)
+		oct->Display();
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();

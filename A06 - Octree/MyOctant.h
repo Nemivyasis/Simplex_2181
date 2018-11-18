@@ -184,13 +184,14 @@ public:
 	- uint a_nMaxLevel = 3 -> Sets the maximum level of the tree while constructing it
 	OUTPUT: ---
 	*/
-	void ConstructTree(uint a_nMaxLevel = 3);
+	void ConstructTree(uint a_nMaxLevel = 3, uint a_nIdealObjCount = 5);
 	/*
 	USAGE: Traverse the tree up to the leafs and sets the objects in them to the index
 	ARGUMENTS: ---
 	OUTPUT: ---
 	*/
 	void AssignIDtoEntity(void);
+	void RemoveAllIDs(void);
 
 	/*
 	USAGE: Gets the total number of octants in the world
@@ -198,6 +199,10 @@ public:
 	OUTPUT: ---
 	*/
 	uint GetOctantCount(void);
+
+	std::vector<MyOctant*> LeafList();
+
+	std::vector<uint> EntityList();
 
 private:
 	/*

@@ -17,6 +17,10 @@ void Simplex::MyEntityManager::Release(void)
 	m_uEntityCount = 0;
 	m_mEntityArray = nullptr;
 }
+MyEntity ** Simplex::MyEntityManager::GetEntityList()
+{
+	return m_mEntityArray;
+}
 Simplex::MyEntityManager* Simplex::MyEntityManager::GetInstance()
 {
 	if(m_pInstance == nullptr)
@@ -167,6 +171,7 @@ Simplex::MyEntityManager::~MyEntityManager(){Release();};
 // other methods
 void Simplex::MyEntityManager::Update(void)
 {
+
 	//Clear all collisions
 	for (uint i = 0; i < m_uEntityCount; i++)
 	{
